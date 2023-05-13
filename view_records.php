@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 include 'includes/header.php';
 if(isset($_GET['pquery'])){
     $pquery = $_GET['pquery'];
-    $url = "http://localhost/apis.stmorg.in/medical/patients/patients?pquery=".$pquery;
+    $url = "https://apis.stmorg.in/medical/records/records?pquery=".$pquery;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $data = $data['data'];
@@ -32,14 +32,14 @@ if(isset($_GET['pquery'])){
             </nav>
         </div>
         <!-- form  -->
-        <div class="col-md-6 grid-margin stretch-card">
+        <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Add Patients</h4>
+                    <h4 class="card-title">View Records</h4>
                     <p class="card-description">Data must be verified.</p>
                     <form class="forms-sample" method="GET">
                         <div class="form-group">
-                            <label for="pquery">Mobile No.</label>
+                            <label for="pquery">Patient Id</label>
                             <input type="text" class="form-control" name="pquery" id="pquery" placeholder="Username" />
                         </div>
                         <button type="submit" class="btn btn-gradient-primary me-2">
@@ -52,7 +52,7 @@ if(isset($_GET['pquery'])){
                     </div>
 
                     <?php 
-                    if(isset($data) && $data['status']== 'success'){
+                    if(isset($data)){
                         foreach ($data as $row) {
                     ?>
                     <div class="row">
@@ -64,17 +64,24 @@ if(isset($_GET['pquery'])){
                                         <table class="table">
                                             <thead>
                                                 <tr>
-                                                    <th>Id</th>
-                                                    <th>Name</th>
-                                                    <th>Age</th>
+                                                    <th>Record Id</th>
+                                                    <!-- <th>Name</th>
+                                                    <th>Age</th> -->
+                                                    <th>Diagnosis</th>
+                                                    <th>Prescription</th>
+                                                    <th>Doctor</th>
+                                                    <th>Last Visit</th>
+
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <!-- pranay Grahambell -->
                                                 <tr>
                                                     <td><?php echo $row['id']; ?></td>
-                                                    <td><?php echo $row['name']; ?></td>
-                                                    <td><?php echo $row['age']; ?></td>
+                                                    <td><?php echo $row['diagnosis']; ?></td>
+                                                    <td><?php echo $row['prescription']; ?></td>
+                                                    <td><?php echo $row['doctor']; ?></td>
+                                                    <td><?php echo $row['last_visit']; ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -85,11 +92,13 @@ if(isset($_GET['pquery'])){
                     </div>
                     <?php
                         }
-                    }elseif(isset($data) && $data['status']== 'error'){
-                        echo "<h3>No Records Found</h3>";
-                        echo "<h4><a href=manage_patients"."?mobile=".$pquery.">click here to register</a></h4>";
+                    }else{
+                        echo "No Data Found";
                     }
                     ?>
+                    <a href="manage_records?pid=<?php echo $pquery; ?>" class="btn btn-gradient-primary me-2">
+                        Add New
+                    </a>
 
                 </div>
             </div>

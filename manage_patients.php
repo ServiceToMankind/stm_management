@@ -1,5 +1,29 @@
 <?php
 include 'includes/header.php';
+
+// show errors
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+if (isset($_GET['mobile'])) {
+    $mobile = $_GET['mobile'];
+}
+if (isset($_GET['pid'])) {
+    $pid = $_GET['pid'];
+}else{
+    $pid='0';
+}
+if(isset($_POST['mobile'])){
+    $data=get_api_data_post('https://apis.stmorg.in/medical/patients/add_patient',$_POST);
+    $data=json_decode($data,true);
+    // Check for API errors
+    if ($data['status'] == 'error') {
+        echo '<script>alert("'.$data['data'].'");</script>';
+    } else {
+        $insert_id=$data['data'];
+    }
+}
 ?>
 <!-- partial -->
 <div class="main-panel">
@@ -9,7 +33,7 @@ include 'includes/header.php';
                 <span class="page-title-icon bg-gradient-danger text-white me-2">
                     <i class="mdi mdi-home"></i>
                 </span>
-                Blood Requests
+                Manage Patients
             </h3>
             <nav aria-label="breadcrumb">
                 <ul class="breadcrumb">
@@ -22,134 +46,68 @@ include 'includes/header.php';
         </div>
         <!-- blood requests table  -->
         <div class="row">
-            <div class="col-12 grid-margin">
+            <div class="col-md-6 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Recent Requests</h4>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Blood & Units</th>
-                                        <th>Status</th>
-                                        <th>Required On</th>
-                                        <th>Verified By</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- pranay Grahambell -->
-                                    <tr>
-                                        <td>Pranay Grahambell</td>
-                                        <td>B+, 5 units</td>
-                                        <td>
-                                            <label class="badge badge-gradient-success">DONE</label>
-                                        </td>
-                                        <td>Dec 5, 2017</td>
-                                        <td>Shivani Chowdarapu</td>
-                                        <td>
-                                            <!-- small view and edit buttons -->
-                                            <button type="button" class="btn btn-outline-primary btn-icon-text btn-sm">
-                                                <i class="mdi mdi-eye btn-icon-prepend"></i>
-                                                View
-                                            </button>
-                                            <button type="button" class="btn btn-outline-success btn-icon-text btn-sm">
-                                                <i class="mdi mdi-pencil btn-icon-prepend"></i>
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <!-- Revanth kumar -->
-                                    <tr>
-                                        <td>Revanth Kumar</td>
-                                        <td>O+, 1 units</td>
-                                        <td>
-                                            <label class="badge badge-gradient-warning">PENDING</label>
-                                        </td>
-                                        <td>Dec 12, 2017</td>
-                                        <td>Shivani Chowdarapu</td>
-                                        <td>
-                                            <!-- small view and edit buttons -->
-                                            <button type="button" class="btn btn-outline-primary btn-icon-text btn-sm">
-                                                <i class="mdi mdi-eye btn-icon-prepend"></i>
-                                                View
-                                            </button>
-                                            <button type="button" class="btn btn-outline-success btn-icon-text btn-sm">
-                                                <i class="mdi mdi-pencil btn-icon-prepend"></i>
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Jyoshna chari  -->
-                                    <tr>
-                                        <td>Jyoshna Chari</td>
-                                        <td>A+, 3 units</td>
-                                        <td>
-                                            <label class="badge badge-gradient-warning">PENDING</label>
-                                        </td>
-                                        <td>Dec 14, 2017</td>
-                                        <td>Shivani Chowdarapu</td>
-                                        <td>
-                                            <!-- small view and edit buttons -->
-                                            <button type="button" class="btn btn-outline-primary btn-icon-text btn-sm">
-                                                <i class="mdi mdi-eye btn-icon-prepend"></i>
-                                                View
-                                            </button>
-                                            <button type="button" class="btn btn-outline-success btn-icon-text btn-sm">
-                                                <i class="mdi mdi-pencil btn-icon-prepend"></i>
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Surya kumar -->
-                                    <tr>
-                                        <td>Surya Kumar</td>
-                                        <td>B+, 4 units</td>
-                                        <td>
-                                            <label class="badge badge-gradient-success">DONE</label>
-                                        </td>
-                                        <td>Dec 15, 2017</td>
-                                        <td>Shivani Chowdarapu</td>
-                                        <td>
-                                            <!-- small view and edit buttons -->
-                                            <button type="button" class="btn btn-outline-primary btn-icon-text btn-sm">
-                                                <i class="mdi mdi-eye btn-icon-prepend"></i>
-                                                View
-                                            </button>
-                                            <button type="button" class="btn btn-outline-success btn-icon-text btn-sm">
-                                                <i class="mdi mdi-pencil btn-icon-prepend"></i>
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Geetha siri  -->
-                                    <tr>
-                                        <td>Geetha Siri</td>
-                                        <td>O+, 1 units</td>
-                                        <td>
-                                            <label class="badge badge-gradient-warning">PENDING</label>
-                                        </td>
-                                        <td>Dec 18, 2017</td>
-                                        <td>Shivani Chowdarapu</td>
-                                        <td>
-                                            <!-- small view and edit buttons -->
-                                            <button type="button" class="btn btn-outline-primary btn-icon-text btn-sm">
-                                                <i class="mdi mdi-eye btn-icon-prepend"></i>
-                                                View
-                                            </button>
-                                            <button type="button" class="btn btn-outline-success btn-icon-text btn-sm">
-                                                <i class="mdi mdi-pencil btn-icon-prepend"></i>
-                                                Edit
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <h4 class="card-title">Register Patient</h4>
+                        <p class="card-description"> Enter Patient Details
+                        </p>
+                        <h4 style="color:red"> <?php if(isset($insert_id)){
+                            echo 'Patient Added Successfully with ID: '.$insert_id.'';
+                        } ?></h4>
+                        <form class="forms-sample" method="POST">
+                            <input type="hidden" name="pid" value="<?php if($pid!=''){
+                                    echo $pid;
+                                }else{
+                                    echo '0';
+                                } ?>">
+                            <div class="form-group">
+                                <label for="exampleInputUsername1">Name</label>
+                                <input type="text" class="form-control" id="exampleInputUsername1" placeholder="Name"
+                                    name="name">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputUsername1">Age</label>
+                                <input type="number" class="form-control" id="exampleInputUsername1" placeholder="Age"
+                                    name="age">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect3">Gender</label>
+                                <select class="form-control form-control-sm" id="exampleFormControlSelect3"
+                                    name="gender">
+                                    <option value="1">Male</option>
+                                    <option value="2">Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputUsername1">Mobile</label>
+                                <input type="number" class="form-control" id="exampleInputUsername1" value="<?php if($mobile!=''){
+                                    echo $mobile;
+                                } ?>" placeholder="Mobile" name="mobile">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Email address</label>
+                                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email"
+                                    name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleFormControlSelect3">Blood Group</label>
+                                <select class="form-control form-control-sm" id="exampleFormControlSelect3"
+                                    name="blood_group">
+                                    <option value="1">A+</option>
+                                    <option value="2">A-</option>
+                                    <option value="3">B+</option>
+                                    <option value="4">B-</option>
+                                    <option value="5">O+</option>
+                                    <option value="6">O-</option>
+                                    <option value="7">AB+</option>
+                                    <option value="8">AB-</option>
+                                    <option value="9">Other</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-gradient-primary me-2">Submit</button>
+                            <button class="btn btn-light">Cancel</button>
+                        </form>
                     </div>
                 </div>
             </div>

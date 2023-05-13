@@ -135,5 +135,23 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
                             </ul>
                         </div>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic2" aria-expanded="false"
+                            aria-controls="ui-basic2">
+                            <span class="menu-title">Records</span>
+                            <i class="menu-arrow"></i>
+                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
+                        </a>
+                        <div class="collapse" id="ui-basic2">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="view_records">View Records</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="manage_records">Manage Records</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
                 </ul>
             </nav>
