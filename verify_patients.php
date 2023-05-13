@@ -9,6 +9,7 @@ if(isset($_GET['pquery'])){
     $url = "http://localhost/apis.stmorg.in/medical/patients/patients?pquery=".$pquery;
     $data = get_api_data($url);
     $data = json_decode($data, true);
+    // print_r($data);
     $data = $data['data'];
 }
 ?>
@@ -50,17 +51,21 @@ if(isset($_GET['pquery'])){
                     <div class="mobile_checked">
 
                     </div>
-
-                    <?php 
-                    if(isset($data) && $data['status']== 'success'){
-                        foreach ($data as $row) {
-                    ?>
                     <div class="row">
                         <div class="col-12 grid-margin">
                             <div class="card">
                                 <div class="card-body">
                                     <h4 class="card-title">Patient Records</h4>
                                     <div class="table-responsive">
+
+
+                                        <?php 
+                    if(isset($data) ){
+                        if(isset($data['status'])){
+                            echo "<h3>No Records Found</h3>";
+                        echo "<h4><a href=manage_patients"."?mobile=".$pquery.">click here to register</a></h4>";
+                        }else{
+                            ?>
                                         <table class="table">
                                             <thead>
                                                 <tr>
@@ -70,12 +75,16 @@ if(isset($_GET['pquery'])){
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <!-- pranay Grahambell -->
+                                                <?php
+                            foreach ($data as $row) {
+                                ?>
                                                 <tr>
                                                     <td><?php echo $row['id']; ?></td>
                                                     <td><?php echo $row['name']; ?></td>
                                                     <td><?php echo $row['age']; ?></td>
                                                 </tr>
+                                                <?php
+                        } } } ?>
                                             </tbody>
                                         </table>
                                     </div>
@@ -83,13 +92,7 @@ if(isset($_GET['pquery'])){
                             </div>
                         </div>
                     </div>
-                    <?php
-                        }
-                    }elseif(isset($data) && $data['status']== 'error'){
-                        echo "<h3>No Records Found</h3>";
-                        echo "<h4><a href=manage_patients"."?mobile=".$pquery.">click here to register</a></h4>";
-                    }
-                    ?>
+
 
                 </div>
             </div>
