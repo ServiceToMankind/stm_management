@@ -10,7 +10,7 @@ if(isset($_POST['name']) && isset($_POST['pass'])){
     $name=$_POST['name'];
     $pass=$_POST['pass'];
 
-    $data=get_api_data('http://apis.stmorg.in/common/login?username='.$name.'&password='.$pass);
+    $data=get_api_data("https://apis.stmorg.in/common/login?username=".$name."&password=".$pass);
     $data=json_decode($data,true);
     // Check for API errors
     if ($data['status'] !== "success") {
