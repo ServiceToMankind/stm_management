@@ -153,5 +153,35 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
                             </ul>
                         </div>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic3" aria-expanded="false"
+                            aria-controls="ui-basic3">
+                            <span class="menu-title">Investigations</span>
+                            <i class="menu-arrow"></i>
+                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
+                        </a>
+                        <div class="collapse" id="ui-basic3">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="blood">Blood</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="manage_records">ECG</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="manage_records">X-Ray</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="manage_records">C-T</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="manage_records">MRI</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="manage_records">Ultra Sound</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
                 </ul>
             </nav>
