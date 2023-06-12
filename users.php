@@ -11,13 +11,13 @@ if(isset($_GET['page'])){
 }
 if(isset($_POST['pquery'])){
     $pquery = $_POST['pquery'];
-    $url = "http://apis.stmorg.in/global/users?pquery=".$pquery ."&page=".$page;
+    $url = "https://apis.stmorg.in/global/users?pquery=".$pquery ."&page=".$page;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $total_pages = $data['total_pages'];
     $data = $data['data'];
 }else{
-    $url = "http://apis.stmorg.in/global/users?page=".$page;;
+    $url = "https://apis.stmorg.in/global/users?page=".$page;;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $total_pages = $data['total_pages'];
