@@ -96,9 +96,9 @@ if(isset($_POST['pquery'])){
                                                 ?>
                                         </td>
                                         <td>
-                                            <a href="edit_user.php?uid=<?php echo $data[$i]['id']; ?>"
+                                            <a href="manage_users?uid=<?php echo $data[$i]['id']; ?>"
                                                 class="btn btn-gradient-info btn-sm">Edit</a>
-                                            <a href="delete_user.php?uid=<?php echo $data[$i]['id']; ?>"
+                                            <a href="manage_users?deluid=<?php echo $data[$i]['id']; ?>"
                                                 class="btn btn-gradient-danger btn-sm">Delete</a>
                                         </td>
                                     </tr>

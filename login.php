@@ -3,7 +3,7 @@ session_start();
 include 'includes/functions.php';
 if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
     // header('location:index.php');
-    echo "<script>window.location.href='index.php'</script>";
+    echo "<script>window.location.href='index'</script>";
 }
 if(isset($_POST['name']) && isset($_POST['pass'])){
 

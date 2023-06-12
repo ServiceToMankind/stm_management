@@ -1,10 +1,14 @@
 <?php
 session_start();
 include 'includes/functions.php';
+
+// $root = "http://localhost/management.stmorg.in/";
+
 if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
 }else{
-  echo "<script>window.location.href='login.php'</script>";
+  echo "<script>window.location.href='login'</script>";
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
