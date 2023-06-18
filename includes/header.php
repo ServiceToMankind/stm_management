@@ -248,6 +248,21 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
                         </div>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic61" aria-expanded="false"
+                            aria-controls="ui-basic61">
+                            <span class="menu-title">Volunteer Activities</span>
+                            <i class="menu-arrow"></i>
+                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
+                        </a>
+                        <div class="collapse" id="ui-basic61">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="volunteering_activities">Volunteer Activities</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic7" aria-expanded="false"
                             aria-controls="ui-basic7">
                             <span class="menu-title">Camps</span>
