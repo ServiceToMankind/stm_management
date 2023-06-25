@@ -32,6 +32,7 @@ if(isset($_GET['id'])){
 if(isset($_POST['action'])){
     $data2 = get_api_data_post("https://apis.stmorg.in/activities/manage_activity_vol",$_POST);
     $data2 = json_decode($data2, true);
+    print_r($data2);
     $data2 = $data2['data'];
     if($data2['status']=='success'){
         echo "<script>window.location.href='add_vol_activity?id=".$id."';</script>";

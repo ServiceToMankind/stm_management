@@ -1,10 +1,6 @@
 <?php
 session_start();
 include 'includes/functions.php';
-if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
-    // header('location:index.php');
-    echo "<script>window.location.href='index'</script>";
-}
 if(isset($_POST['name']) && isset($_POST['pass'])){
 
     $name=$_POST['name'];
@@ -23,6 +19,10 @@ if(isset($_POST['name']) && isset($_POST['pass'])){
     $_SESSION['NAME']=$user_data['name'];
     $_SESSION['EMAIL']=$user_data['mail'];
 
+}
+if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
+    // header('location:index.php');
+    echo "<script>window.location.href='index'</script>";
 }
     
 ?>
@@ -57,14 +57,14 @@ if(isset($_POST['name']) && isset($_POST['pass'])){
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left p-5">
                             <div class="brand-logo">
-                                <img src="assets/images/logo.svg">
+                                <img style="width: 80px;" src="assets/images/logoui.svg">
                             </div>
-                            <h4>Hello! let's get started</h4>
+                            <h4>STM Medical Management System</h4>
                             <h6 class="font-weight-light">Sign in to continue.</h6>
                             <form class="pt-3" method="POST">
                                 <div class="form-group">
                                     <input type="email" class="form-control form-control-lg" id="exampleInputEmail1"
-                                        placeholder="Username" name="name">
+                                        placeholder="Email" name="name">
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg"
@@ -75,13 +75,13 @@ if(isset($_POST['name']) && isset($_POST['pass'])){
                                         class="btn btn-block btn-gradient-primary btn-lg font-weight-medium auth-form-btn">SIGN
                                         IN</button>
                                 </div>
-                                <div class="my-2 d-flex justify-content-between align-items-center">
+                                <!-- <div class="my-2 d-flex justify-content-between align-items-center">
                                     <div class="form-check">
                                         <label class="form-check-label text-muted">
                                             <input type="checkbox" class="form-check-input"> Keep me signed in </label>
                                     </div>
                                     <a href="#" class="auth-link text-black">Forgot password?</a>
-                                </div>
+                                </div> -->
                             </form>
                         </div>
                     </div>

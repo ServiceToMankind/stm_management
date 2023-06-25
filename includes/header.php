@@ -78,7 +78,7 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
                                 <i class="mdi mdi-cached me-2 text-success"></i> Activity Log
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="logout.php">
+                            <a class="dropdown-item" href="logout">
                                 <i class="mdi mdi-logout me-2 text-primary"></i> Signout
                             </a>
                         </div>
