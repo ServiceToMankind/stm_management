@@ -139,9 +139,14 @@ if(isset($_GET['month'])){
                                         </td>
                                         <td>
                                             <a href="manage_donations?rid=<?php echo $data[$i]['id']; ?>"
-                                                class="btn btn-gradient-info btn-sm">Edit</a>
+                                                class="btn btn-gradient-info btn-sm"
+                                                onclick="return confirm('Are you sure ?');">Edit</a>
                                             <a href="manage_donations?rid=<?php echo $data[$i]['id']; ?>&action=delete"
-                                                class="btn btn-gradient-danger btn-sm">Delete</a>
+                                                class="btn btn-gradient-danger btn-sm"
+                                                onclick="return confirm('Are you sure you want to delete this record?');">
+                                                Delete
+                                            </a>
+
                                         </td>
                                     </tr>
                                     <?php

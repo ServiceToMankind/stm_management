@@ -95,7 +95,8 @@ if(isset($_POST['pquery'])){
                                             <a href="manage_users?uid=<?php echo $data[$i]['id']; ?>"
                                                 class="btn btn-gradient-info btn-sm">Edit</a>
                                             <a href="manage_users?deluid=<?php echo $data[$i]['id']; ?>"
-                                                class="btn btn-gradient-danger btn-sm">Delete</a>
+                                                class="btn btn-gradient-danger btn-sm"
+                                                onclick="return confirm('Are you sure you want to delete this user ?');">Delete</a>
                                         </td>
                                     </tr>
                                     <?php
