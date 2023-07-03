@@ -93,6 +93,9 @@ if(isset($_GET['month'])){
         <div class="row">
             <div class="col-12 grid-margin">
                 <div class="card">
+                    <!-- print button  -->
+                    <a href="printdonations?month=<?php echo $month; ?>&year=<?php echo $year; ?>"
+                        class="btn btn-gradient-primary me-2" style="margin: 1em">Print</a>
                     <div class="card-body">
                         <h4 class="card-title">Donation records of <?php echo $month;?>th month of
                             <?php echo $year; ?>th
