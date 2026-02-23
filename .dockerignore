@@ -1,0 +1,12 @@
+.git
+.gitignore
+node_modules
+vendor
+*.log
+*.zip
+*.tar
+*.sql
+.env
+.github
+Dockerfile.template
+init.ps1
