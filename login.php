@@ -61,7 +61,7 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
                             </div>
                             <h4>STM Medical Management System</h4>
                             <h6 class="font-weight-light">Sign in to continue.</h6>
-                            <form class="pt-3" method="POST">
+                            <form class="pt-3" method="POST" action="login">
                                 <div class="form-group">
                                     <input type="email" class="form-control form-control-lg" id="exampleInputEmail1"
                                         placeholder="Email" name="name">
