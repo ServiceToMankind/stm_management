@@ -29,7 +29,7 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
     <!-- ovveride css -->
     <link rel="stylesheet" href="assets/css/custom_override.css?v=1" />
     <!-- Layout styles -->
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/style.css?v=1" />
 
     <!-- End layout styles -->
     <link rel="shortcut icon" href="assets/images/favicon.ico" />
