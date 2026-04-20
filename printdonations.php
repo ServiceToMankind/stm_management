@@ -3,7 +3,7 @@ require('includes/functions.php');
 if(isset($_GET['month']) && $_GET['month']!=''){
     $month = $_GET['month'];
     $year = $_GET['year'];
-    $url = "https://apis.stmorg.in/logs/donations?month=".$month."&year=".$year."&print=true";
+    $url = "$api_url/logs/donations?month=".$month."&year=".$year."&print=true";
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $data = $data['data'];

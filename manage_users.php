@@ -3,7 +3,7 @@ include 'includes/header.php';
 
 if(isset($_GET['deluid'])){
     $deluid = $_GET['deluid'];
-    $url = "https://apis.stmorg.in/global/manage_users?deluid=".$deluid;
+    $url = "$api_url/global/manage_users?deluid=".$deluid;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     echo "<script>window.location.href='users'</script>";
@@ -11,7 +11,7 @@ if(isset($_GET['deluid'])){
 
 if(isset($_GET['uid'])){
     $uid = $_GET['uid'];
-    $url = "https://apis.stmorg.in/global/users?uid=".$uid;
+    $url = "$api_url/global/users?uid=".$uid;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $data = $data['data'];
@@ -32,7 +32,7 @@ if(isset($_GET['uid'])){
 }
 if(isset($_POST['uid'])){
     $uid= $_POST['uid'];
-    $data2= get_api_data_post("https://apis.stmorg.in/global/manage_users",$_POST);
+    $data2= get_api_data_post("$api_url/global/manage_users",$_POST);
     $data2 = json_decode($data2, true);
     echo "<script>window.location.href='manage_users?uid=".$uid."'</script>";
 }else{

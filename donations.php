@@ -20,13 +20,13 @@ if(isset($_GET['month'])){
     if(isset($_GET['year'])){
         $year = $_GET['year'];
     }
-    $url = "https://apis.stmorg.in/logs/donations?month=".$month."&year=".$year."&page=".$page;
+    $url = "$api_url/logs/donations?month=".$month."&year=".$year."&page=".$page;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $total_pages = $data['total_pages'];
     $data = $data['data'];
 }else{
-    $url = "https://apis.stmorg.in/logs/donations?page=".$page;
+    $url = "$api_url/logs/donations?page=".$page;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $total_pages = $data['total_pages'];

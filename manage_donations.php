@@ -19,10 +19,10 @@ if (isset($_GET['rid'])) {
     if (isset($_GET['action']) && $_GET['action'] == 'delete') {
         $rid = $_GET['rid'];
         $action = $_GET['action'];
-        $data2 = get_api_data("https://apis.stmorg.in/logs/manage_donations?rid=" . $rid . "&action=" . $action);
+        $data2 = get_api_data("$api_url/logs/manage_donations?rid=" . $rid . "&action=" . $action);
     } else {
         $rid = $_GET['rid'];
-        $url = "https://apis.stmorg.in/logs/donations?rid=" . $rid;
+        $url = "$api_url/logs/donations?rid=" . $rid;
         $data = get_api_data($url);
         $data = json_decode($data, true);
         $data = $data['data'];
@@ -42,7 +42,7 @@ if (isset($_GET['rid'])) {
 
 if (isset($_POST['rid'])) {
     $rid = $_POST['rid'];
-    $data2 = get_api_data_post("https://apis.stmorg.in/logs/manage_donations", $_POST);
+    $data2 = get_api_data_post("$api_url/logs/manage_donations", $_POST);
     $data2 = json_decode($data2, true);
     echo "<script>window.location.href='manage_donations?rid=" . $rid . "'</script>";
 }else {

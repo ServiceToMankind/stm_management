@@ -8,7 +8,7 @@ if(isset($_GET['rmid'])){
     $action="remove";
     $aid = $_GET['aid'];
     // add into an array
-    $data2 = get_api_data_post("https://apis.stmorg.in/activities/manage_activity_vol",array('action'=>$action,'aid'=>$aid,'volunteers'=>$rmid));
+    $data2 = get_api_data_post("$api_url/activities/manage_activity_vol",array('action'=>$action,'aid'=>$aid,'volunteers'=>$rmid));
     $data2 = json_decode($data2, true);
     $data2 = $data2['data'];
     if($data2['status']=='success'){
@@ -21,7 +21,7 @@ if(isset($_GET['rmid'])){
 
 if(isset($_GET['id'])){
     $id = $_GET['id'];
-    $url = "https://apis.stmorg.in/activities/activity_volunteers?id=".$id;
+    $url = "$api_url/activities/activity_volunteers?id=".$id;
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $data = $data['data'];
@@ -30,7 +30,7 @@ if(isset($_GET['id'])){
 }
 
 if(isset($_POST['action'])){
-    $data2 = get_api_data_post("https://apis.stmorg.in/activities/manage_activity_vol",$_POST);
+    $data2 = get_api_data_post("$api_url/activities/manage_activity_vol",$_POST);
     $data2 = json_decode($data2, true);
     print_r($data2);
     $data2 = $data2['data'];

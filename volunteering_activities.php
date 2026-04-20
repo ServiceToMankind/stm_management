@@ -5,7 +5,7 @@ if(isset($_GET['page'])){
 }else{
     $page = 1;
 }
-    $url = "https://apis.stmorg.in/activities/activities";
+    $url = "$api_url/activities/activities";
     $data = get_api_data($url);
     $data = json_decode($data, true);
     $data = $data['data'];
