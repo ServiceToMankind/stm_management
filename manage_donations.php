@@ -58,7 +58,11 @@ if (isset($_POST['_submit'])) {
         echo "<script>window.location.href='donations'</script>";
         exit;
     } else {
-        $alert_msg  = 'Error saving donation. Please try again.';
+        $error_detail = isset($resp['message']) ? ': ' . $resp['message'] : '';
+        if (!$resp) {
+            $error_detail = ': No response from API or invalid JSON';
+        }
+        $alert_msg  = 'Error saving donation' . $error_detail;
         $alert_type = 'danger';
     }
 }
@@ -333,9 +337,9 @@ $is_linked  = ($uid !== '');   // donor is a known user
                         <label class="form-label fw-semibold" for="cdGender">Gender</label>
                         <select id="cdGender" class="form-select">
                             <option value="">— Select —</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
+                            <option value="1">Male</option>
+                            <option value="2">Female</option>
+                            <option value="3">Other</option>
                         </select>
                     </div>
                     <div id="cdError" class="alert alert-danger py-2 small" style="display:none;"></div>
@@ -357,11 +361,17 @@ $is_linked  = ($uid !== '');   // donor is a known user
      Inline script: autocomplete + donor modal logic
 ════════════════════════════════════════════════════════════════════════════ -->
 <style>
-#donorSuggestions .suggestion-item {
-    padding: 10px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background .15s;
+#donorSuggestions {
+    position: absolute;
+    width: 100%;
+    background: #white;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 2000;
+    display: none;
+    max-height: 240px;
+    overflow-y: auto;
 }
 #donorSuggestions .suggestion-item:last-child { border-bottom: none; }
 #donorSuggestions .suggestion-item:hover,
@@ -444,11 +454,18 @@ $is_linked  = ($uid !== '');   // donor is a known user
     function fetchSuggestions(q) {
         if (q === lastQuery) return;
         lastQuery = q;
+        console.log('Searching for:', q);
 
-        fetch(`${API_BASE}/global/users_search.php?q=${encodeURIComponent(q)}&limit=8`)
+        fetch(`${API_BASE}/global/users_search?q=${encodeURIComponent(q)}&limit=8`)
             .then(r => r.json())
-            .then(json => renderSuggestions(json.data || [], q))
-            .catch(() => closeSuggestions());
+            .then(json => {
+                console.log('Search results:', json);
+                renderSuggestions(json.data || [], q);
+            })
+            .catch(err => {
+                console.error('Search error:', err);
+                closeSuggestions();
+            });
     }
 
     function renderSuggestions(users, query) {
@@ -558,15 +575,17 @@ $is_linked  = ($uid !== '');   // donor is a known user
         saveDonorIcon.style.display    = 'none';
         saveDonorBtn.disabled          = true;
 
+        console.log('Creating donor:', name);
         const fd = new FormData();
         fd.append('name',   name);
         fd.append('mobile', cdMobile.value.trim());
         fd.append('mail',   cdMail.value.trim());
         fd.append('gender', cdGender.value);
 
-        fetch(`${API_BASE}/global/create_donor.php`, { method: 'POST', body: fd })
+        fetch(`${API_BASE}/global/create_donor`, { method: 'POST', body: fd })
             .then(r => r.json())
             .then(json => {
+                console.log('Create donor response:', json);
                 if (json.status === 'success') {
                     createDonorModal.hide();
                     selectDonor(json.data);
@@ -574,7 +593,10 @@ $is_linked  = ($uid !== '');   // donor is a known user
                     showCdError(json.message || 'Failed to create donor.');
                 }
             })
-            .catch(() => showCdError('Network error. Please try again.'))
+            .catch(err => {
+                console.error('Create donor error:', err);
+                showCdError('Network error. Please try again.');
+            })
             .finally(() => {
                 saveDonorSpinner.style.display = 'none';
                 saveDonorIcon.style.display    = 'inline-block';
