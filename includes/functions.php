@@ -1,5 +1,7 @@
 <?php
-$api_url = "https://apis.stmorg.in";
+// $api_url = "https://apis.stmorg.in";
+// localhost
+$api_url = "http://localhost/apis-stm";
 function pr($arr)
 {
   echo '<pre>';
