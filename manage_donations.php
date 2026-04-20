@@ -105,7 +105,7 @@ $is_linked  = ($uid !== '');   // donor is a known user
         <!-- Page header -->
         <div class="page-header mb-4">
             <div class="d-flex align-items-center gap-3">
-                <div class="page-title-icon bg-gradient-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width:46px;height:46px;flex-shrink:0;">
+                <div class="page-title-icon bg-gradient-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:46px;height:46px;flex-shrink:0;">
                     <i class="mdi mdi-currency-inr fs-5"></i>
                 </div>
                 <div>

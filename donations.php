@@ -1,267 +1,148 @@
 <?php
 include 'includes/header.php';
-if(isset($_GET['page'])){
-    $page = $_GET['page'];
-}else{
-    $page = 1;
-}
-// Set the timezone to Asia/Kolkata
+
+$page   = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 date_default_timezone_set("Asia/Kolkata");
 
-// Get the current date and time
-$date = date('Y-m-d h:i:s');
+$month  = isset($_GET['month']) ? $_GET['month'] : date('m');
+$year   = isset($_GET['year'])  ? $_GET['year']  : date('Y');
+$q      = isset($_GET['q'])     ? $_GET['q']     : '';
 
-// Initialize variables for the month and year
-$month = date('m', strtotime("$date"));
-$year = date('Y', strtotime("$date"));
+$url    = "$api_url/logs/donations?page=$page&month=$month&year=$year";
+if ($q !== '') $url .= "&q=" . urlencode($q);
 
-if(isset($_GET['month'])){
-    $month = $_GET['month'];
-    if(isset($_GET['year'])){
-        $year = $_GET['year'];
-    }
-    $url = "$api_url/logs/donations?month=".$month."&year=".$year."&page=".$page;
-    $data = get_api_data($url);
-    $data = json_decode($data, true);
-    $total_pages = $data['total_pages'];
-    $data = $data['data'];
-}else{
-    $url = "$api_url/logs/donations?page=".$page;
-    $data = get_api_data($url);
-    $data = json_decode($data, true);
-    $total_pages = $data['total_pages'];
-    $data = $data['data'];
-}
+$resp        = json_decode(get_api_data($url), true);
+$data        = $resp['data']        ?? [];
+$total_pages = $resp['total_pages'] ?? 0;
+$total_amt   = $resp['total_amount']?? 0;
+
+$month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
 ?>
-<!-- partial -->
+
 <div class="main-panel">
-    <div class="content-wrapper">
-        <div class="page-header">
-            <h3 class="page-title">
-                <span class="page-title-icon bg-gradient-danger text-white me-2">
-                    <i class="mdi mdi-home"></i>
-                </span>
-                Donation Records
-            </h3>
-            <nav aria-label="breadcrumb">
-                <ul class="breadcrumb">
-                    <!-- search bar  -->
-                    <li>
-                        <form method="GET">
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <h5>Search by month & year : </h5>
-                                    <!-- month  -->
-                                    <div class="form-group">
-                                        <select class="form-control" name="month" id="exampleSelectGender">
-                                            <!-- Keep the month and year as default to get all the records  -->
-                                            <option value="<?php echo $month; ?>"><?php echo $month; ?></option>
-                                            <?php
-                                                for($i=1; $i<=12; $i++){
-                                                    ?>
-                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                            <?php
-                                                }
-                                                ?>
-                                        </select>
-                                    </div>
-                                    <!-- year  -->
-                                    <div class="form-group">
-                                        <select class="form-control" name="year" id="exampleSelectGender">
-                                            <!-- keep $year as default to get all the records  -->
-                                            <option value="<?php echo $year; ?>"><?php echo $year; ?></option>
-                                            <?php
-                                                for($i=2018; $i<=2030; $i++){
-                                                    ?>
-                                            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
-                                            <?php
-                                                }
-                                                ?>
-                                        </select>
-                                    </div>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-sm btn-gradient-primary" type="submit">Search</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-        <!-- form  -->
-        <div class="row">
-            <div class="col-12 grid-margin">
-                <div class="card">
-                    <!-- print button  -->
-                    <a href="printdonations?month=<?php echo $month; ?>&year=<?php echo $year; ?>"
-                        class="btn btn-gradient-primary me-2" style="margin: 1em">Print</a>
-                    <div class="card-body">
-                        <h4 class="card-title">Donation records of <?php echo $month;?>th month of
-                            <?php echo $year; ?>th
-                            year</h4>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Tx. Id</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Amount</th>
-                                        <th>Message</th>
-                                        <th>DateTime</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    if(isset($data['status']) && $data['status']=='error'){
-                                    }else{
-                                    for($i=0; $i<count($data); $i++){
-                                        ?>
-                                    <tr>
-                                        <td><?php echo $data[$i]['txid']; ?></td>
-                                        <td><?php echo $data[$i]['name']; ?></td>
-                                        <td><?php echo $data[$i]['mail']; ?></td>
-                                        <td><?php echo $data[$i]['amount']; ?></td>
-                                        <td><?php echo $data[$i]['message']; ?></td>
-                                        <td><?php echo $data[$i]['added_on']; ?></td>
-                                        <td>
-                                            <?php
-                                                if($data[$i]['payment_status'] == 1){
-                                                    ?>
-                                            <label class="badge badge-gradient-success">success</label>
-                                            <?php
-                                                }else{
-                                                    ?>
-                                            <label class="badge badge-gradient-danger">fail</label>
-                                            <?php
-                                                }
-                                                ?>
-                                        </td>
-                                        <td>
-                                            <a href="manage_donations?rid=<?php echo $data[$i]['id']; ?>"
-                                                class="btn btn-gradient-info btn-sm"
-                                                onclick="return confirm('Are you sure ?');">Edit</a>
-                                            <a href="manage_donations?rid=<?php echo $data[$i]['id']; ?>&action=delete"
-                                                class="btn btn-gradient-danger btn-sm"
-                                                onclick="return confirm('Are you sure you want to delete this record?');">
-                                                Delete
-                                            </a>
+<div class="content-wrapper">
 
-                                        </td>
-                                    </tr>
-                                    <?php
-                                    }
-                                }
-                                    ?>
-
-                                </tbody>
-                            </table>
-                            <!-- pagination -->
-                            <!-- pagination -->
-                            <div class="btn-group page-group" role="group" aria-label="Basic example">
-                                <?php if ($total_pages): ?>
-                                <ul class="pagination">
-                                    <?php if ($page > 1): ?>
-                                    <?php if (isset($_GET['month']) && isset($_GET['year'])): ?>
-                                    <li class="prev"><a
-                                            href="?page=<?php echo $page - 1 ?>&month=<?php echo $month ?>&year=<?php echo $year ?>">Prev</a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="prev"><a href="?page=<?php echo $page - 1 ?>">Prev</a></li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-
-                                    <?php if ($page > 3): ?>
-                                    <?php if (isset($_GET['month']) && isset($_GET['year'])): ?>
-                                    <li class="start"><a
-                                            href="?page=1&month=<?php echo $month ?>&year=<?php echo $year ?>">1</a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="start"><a href="?page=1">1</a></li>
-                                    <?php endif; ?>
-                                    <li class="dots">...</li>
-                                    <?php endif; ?>
-
-                                    <?php if ($page - 2 > 0): ?>
-                                    <?php if (isset($_GET['month']) && isset($_GET['year'])): ?>
-                                    <li class="page"><a
-                                            href="?page=<?php echo $page - 2 ?>&month=<?php echo $month ?>&year=<?php echo $year ?>"><?php echo $page - 2 ?></a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="page"><a href="?page=<?php echo $page - 2 ?>"><?php echo $page - 2 ?></a>
-                                    </li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-                                    <?php if ($page - 1 > 0): ?>
-                                    <?php if (isset($_POST['month']) && isset($_POST['year'])): ?>
-                                    <li class="page"><a
-                                            href="?page=<?php echo $page - 1 ?>&month=<?php echo $month ?>&year=<?php echo $year ?>"><?php echo $page - 1 ?></a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="page"><a href="?page=<?php echo $page - 1 ?>"><?php echo $page - 1 ?></a>
-                                    </li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-
-                                    <li class="currentpage"><a href="?page=<?php echo $page ?>"><?php echo $page ?></a>
-                                    </li>
-
-                                    <?php if ($page + 1 < $total_pages + 1): ?>
-                                    <?php if (isset($_GET['month']) && isset($_GET['year'])): ?>
-                                    <li class="page"><a
-                                            href="?page=<?php echo $page + 1 ?>&month=<?php echo $month ?>&year=<?php echo $year ?>"><?php echo $page + 1 ?></a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="page"><a href="?page=<?php echo $page + 1 ?>"><?php echo $page + 1 ?></a>
-                                    </li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-                                    <?php if ($page + 2 < $total_pages + 1): ?>
-                                    <?php if (isset($_GET['month']) && isset($_GET['year'])): ?>
-                                    <li class="page"><a
-                                            href="?page=<?php echo $page + 2 ?>&month=<?php echo $month ?>&year=<?php echo $year ?>"><?php echo $page + 2 ?></a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="page"><a href="?page=<?php echo $page + 2 ?>"><?php echo $page + 2 ?></a>
-                                    </li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-
-                                    <?php if ($page < $total_pages - 2): ?>
-                                    <li class="dots">...</li>
-                                    <?php if (isset($_GET['month']) && isset($_GET['year'])): ?>
-                                    <li class="end"><a
-                                            href="?page=<?php echo $total_pages ?>&month=<?php echo $month ?>&year=<?php echo $year ?>"><?php echo $total_pages ?></a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="end"><a
-                                            href="?page=<?php echo $total_pages ?>"><?php echo $total_pages ?></a></li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-
-                                    <?php if ($page < $total_pages): ?>
-                                    <?php if (isset($_GET['month']) && isset($_GET['year'])): ?>
-                                    <li class="next"><a
-                                            href="?page=<?php echo $page + 1 ?>&month=<?php echo $month ?>&year=<?php echo $year ?>">Next</a>
-                                    </li>
-                                    <?php else: ?>
-                                    <li class="next"><a href="?page=<?php echo $page + 1 ?>">Next</a></li>
-                                    <?php endif; ?>
-                                    <?php endif; ?>
-                                </ul>
-                                <?php endif; ?>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <h3 class="page-title">
+      <span class="page-title-icon me-2"><i class="mdi mdi-heart-outline"></i></span>
+      Donation Records
+    </h3>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <form method="GET" class="d-flex align-items-center gap-2">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search donor…" value="<?= htmlspecialchars($q) ?>" style="width:180px;">
+        <select name="month" class="form-select form-select-sm" style="width:130px;">
+          <option value="all" <?= $month=='all'?'selected':'' ?>>All Months</option>
+          <?php for($i=1;$i<=12;$i++): $m=str_pad($i,2,'0',STR_PAD_LEFT); ?>
+          <option value="<?=$m?>" <?= $month==$m?'selected':'' ?>><?= date('F',mktime(0,0,0,$i,1)) ?></option>
+          <?php endfor; ?>
+        </select>
+        <select name="year" class="form-select form-select-sm" style="width:100px;">
+          <?php for($i=2019;$i<=date('Y');$i++): ?>
+          <option value="<?=$i?>" <?= $year==$i?'selected':'' ?>><?=$i?></option>
+          <?php endfor; ?>
+        </select>
+        <button class="btn btn-sm btn-gradient-primary" type="submit"><i class="mdi mdi-magnify me-1"></i>Filter</button>
+      </form>
+      <a href="manage_donations" class="btn btn-sm btn-gradient-success"><i class="mdi mdi-plus me-1"></i>Add New</a>
+      <a href="printdonations?month=<?= $month ?>&year=<?= $year ?>" class="btn btn-sm btn-outline-secondary" target="_blank"><i class="mdi mdi-printer me-1"></i>Print</a>
     </div>
-    <!-- content-wrapper ends -->
-    <?php
-include 'includes/footer.php';
-?>
+  </div>
+
+  <!-- Summary Row -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <div class="card border-0 p-3 d-flex flex-row align-items-center gap-3">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--stm-navy-muted);display:flex;align-items:center;justify-content:center;">
+          <i class="mdi mdi-currency-inr" style="font-size:1.5rem;color:var(--stm-navy);"></i>
+        </div>
+        <div>
+          <p class="mb-0 text-muted" style="font-size:0.75rem;font-weight:600;text-transform:uppercase;">Total for <?= $month_name ?> <?= $year ?></p>
+          <h4 class="mb-0 fw-bold" style="color:var(--stm-navy);">₹<?= number_format($total_amt) ?></h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card border-0">
+    <div class="card-body px-0 pb-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="padding-left:20px;">Donor Name</th>
+              <th>Email</th>
+              <th>Amount</th>
+              <th>Message</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+              <th style="padding-right:20px;text-align:center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (empty($data)): ?>
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="mdi mdi-inbox-arrow-down" style="font-size:2.5rem;display:block;margin-bottom:8px;opacity:0.25;"></i>
+                  No donation records found for this period.
+                </td>
+              </tr>
+            <?php else: foreach($data as $row): ?>
+              <tr>
+                <td style="padding-left:20px;">
+                  <span style="font-weight:600;color:#2c3250;"><?= htmlspecialchars($row['name']) ?></span>
+                  <?php if($row['txid']): ?>
+                    <br><small class="text-muted" style="font-size:0.72rem;"><?= htmlspecialchars($row['txid']) ?></small>
+                  <?php endif; ?>
+                </td>
+                <td style="color:var(--stm-text-muted);font-size:0.85rem;"><?= htmlspecialchars($row['mail']) ?></td>
+                <td style="font-weight:700;color:#2a7d4f;">₹<?= number_format($row['amount']) ?></td>
+                <td style="max-width:180px;font-size:0.82rem;color:var(--stm-text-muted);"><?= htmlspecialchars($row['message']) ?></td>
+                <td style="font-size:0.8rem;white-space:nowrap;"><?= date('d M Y, h:i A', strtotime($row['added_on'])) ?></td>
+                <td>
+                  <?php if($row['payment_status']==1): ?>
+                    <span class="badge-gradient-success">Success</span>
+                  <?php else: ?>
+                    <span class="badge-gradient-danger">Failed</span>
+                  <?php endif; ?>
+                </td>
+                <td style="padding-right:20px;text-align:center;white-space:nowrap;">
+                  <a href="manage_donations?rid=<?= $row['id'] ?>" class="btn btn-gradient-info btn-xs me-1">
+                    <i class="mdi mdi-pencil"></i>
+                  </a>
+                  <a href="manage_donations?rid=<?= $row['id'] ?>&action=delete" class="btn btn-gradient-danger btn-xs"
+                     onclick="return confirm('Delete this donation record?')">
+                    <i class="mdi mdi-delete"></i>
+                  </a>
+                </td>
+              </tr>
+            <?php endforeach; endif; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <?php if ($total_pages > 1): ?>
+      <div class="px-4 py-3 d-flex justify-content-center">
+        <ul class="pagination pagination-sm mb-0">
+          <?php if ($page > 1): ?>
+            <li class="page-item"><a class="page-link" href="?page=<?=$page-1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>">‹ Prev</a></li>
+          <?php endif; ?>
+          <?php for($i=max(1,$page-2); $i<=min($total_pages,$page+2); $i++): ?>
+            <li class="page-item <?=$i==$page?'active':''?>">
+              <a class="page-link" href="?page=<?=$i?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>"><?=$i?></a>
+            </li>
+          <?php endfor; ?>
+          <?php if ($page < $total_pages): ?>
+            <li class="page-item"><a class="page-link" href="?page=<?=$page+1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>">Next ›</a></li>
+          <?php endif; ?>
+        </ul>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+
+</div>
+<?php include 'includes/footer.php'; ?>
+</div>

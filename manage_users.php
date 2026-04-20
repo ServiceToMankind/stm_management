@@ -45,7 +45,7 @@ if(isset($_POST['uid'])){
     <div class="content-wrapper">
         <div class="page-header">
             <h3 class="page-title">
-                <span class="page-title-icon bg-gradient-danger text-white me-2">
+                <span class="page-title-icon bg-gradient-primary text-white me-2">
                     <i class="mdi mdi-home"></i>
                 </span>
                 Manage Users

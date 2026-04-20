@@ -1,166 +1,134 @@
 <?php
 include 'includes/header.php';
 
-$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-
-// Set the timezone to Asia/Kolkata
+$page  = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 date_default_timezone_set("Asia/Kolkata");
 
-// Get the current date and time
-$now = date('Y-m-d H:i:s');
+$month  = isset($_GET['month']) ? $_GET['month'] : date('m');
+$year   = isset($_GET['year'])  ? $_GET['year']  : date('Y');
+$q      = isset($_GET['q'])     ? $_GET['q']     : '';
 
-// Initialize variables for the month and year
-$month = isset($_GET['month']) ? $_GET['month'] : date('m', strtotime($now));
-$year  = isset($_GET['year'])  ? $_GET['year']  : date('Y', strtotime($now));
-$q     = isset($_GET['q'])     ? $_GET['q']     : '';
+$url = "$api_url/logs/spends?page=$page&month=$month&year=$year";
+if ($q !== '') $url .= "&q=" . urlencode($q);
 
-// Construct API URL
-$query_params = [
-    'page' => $page,
-    'month' => $month,
-    'year' => $year,
-    'q' => $q
-];
-$url = "$api_url/logs/spends?" . http_build_query($query_params);
+$resp        = json_decode(get_api_data($url), true);
+$data        = $resp['data']         ?? [];
+$total_pages = $resp['total_pages']  ?? 0;
+$total_amt   = $resp['total_amount'] ?? 0;
 
-$resp = get_api_data($url);
-$resp_data = json_decode($resp, true);
-
-$data = [];
-$total_pages = 0;
-$total_amount = 0;
-
-if (isset($resp_data['status']) && $resp_data['status'] === 'success') {
-    $data = $resp_data['data'];
-    $total_pages = $resp_data['total_pages'];
-    $total_amount = $resp_data['total_amount'];
-}
+$month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
 ?>
 
 <div class="main-panel">
-    <div class="content-wrapper">
-        <div class="page-header">
-            <h3 class="page-title">
-                <span class="page-title-icon bg-gradient-primary text-white me-2">
-                    <i class="mdi mdi-cash-multiple"></i>
-                </span>
-                Expenditure Records
-            </h3>
-            <nav aria-label="breadcrumb">
-                <div class="d-flex align-items-center">
-                    <form method="GET" class="d-flex align-items-center me-3">
-                        <input type="text" name="q" class="form-control form-control-sm me-2" placeholder="Search title/desc..." value="<?= htmlspecialchars($q) ?>">
-                        <select name="month" class="form-select form-select-sm me-2" style="width: auto;">
-                            <?php for($i=1; $i<=12; $i++): $m = str_pad($i, 2, '0', STR_PAD_LEFT); ?>
-                                <option value="<?= $m ?>" <?= $month == $m ? 'selected' : '' ?>><?= date('F', mktime(0, 0, 0, $i, 10)) ?></option>
-                            <?php endfor; ?>
-                            <option value="all" <?= $month == 'all' ? 'selected' : '' ?>>All Months</option>
-                        </select>
-                        <select name="year" class="form-select form-select-sm me-2" style="width: auto;">
-                            <?php for($i=2018; $i<=date('Y')+2; $i++): ?>
-                                <option value="<?= $i ?>" <?= $year == $i ? 'selected' : '' ?>><?= $i ?></option>
-                            <?php endfor; ?>
-                        </select>
-                        <button class="btn btn-sm btn-gradient-primary" type="submit">Filter</button>
-                    </form>
-                    <a href="manage_spends" class="btn btn-sm btn-gradient-success">
-                        <i class="mdi mdi-plus me-1"></i> Add New
-                    </a>
-                </div>
-            </nav>
-        </div>
+<div class="content-wrapper">
 
-        <div class="row">
-            <div class="col-12 grid-margin">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="card-title mb-0">
-                                Expenditures for 
-                                <?= $month == 'all' ? 'All Time' : date('F', mktime(0, 0, 0, $month, 10)) ?> 
-                                <?= $year ?>
-                            </h4>
-                            <div class="text-end">
-                                <p class="text-muted small mb-0">Total Amount Spent</p>
-                                <h3 class="text-danger fw-bold mb-0">₹<?= number_format($total_amount, 2) ?></h3>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Title</th>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th class="text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (empty($data)): ?>
-                                        <tr>
-                                            <td colspan="5" class="text-center py-4 text-muted">No expenditure records found.</td>
-                                        </tr>
-                                    <?php else: ?>
-                                        <?php foreach($data as $row): ?>
-                                            <tr>
-                                                <td class="text-muted small">
-                                                    <?= date('d M, Y', strtotime($row['date'])) ?>
-                                                </td>
-                                                <td class="fw-bold"><?= htmlspecialchars($row['title']) ?></td>
-                                                <td class="text-wrap" style="max-width: 300px;">
-                                                    <small class="text-muted"><?= htmlspecialchars($row['des']) ?></small>
-                                                </td>
-                                                <td class="fw-bold text-danger">₹<?= number_format($row['amount'], 2) ?></td>
-                                                <td class="text-center">
-                                                    <a href="manage_spends?rid=<?= $row['id'] ?>" class="btn btn-gradient-info btn-xs py-1">
-                                                        <i class="mdi mdi-pencil"></i>
-                                                    </a>
-                                                    <a href="manage_spends?rid=<?= $row['id'] ?>&action=delete" 
-                                                       class="btn btn-gradient-danger btn-xs py-1"
-                                                       onclick="return confirm('Delete this record? This action cannot be undone.');">
-                                                        <i class="mdi mdi-delete"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Pagination -->
-                        <?php if ($total_pages > 1): ?>
-                        <nav class="mt-4">
-                            <ul class="pagination pagination-sm justify-content-center">
-                                <?php if ($page > 1): ?>
-                                    <li class="page-item"><a class="page-link" href="?page=<?= $page-1 ?>&month=<?= $month ?>&year=<?= $year ?>&q=<?= $q ?>">Prev</a></li>
-                                <?php endif; ?>
-
-                                <?php for($i=1; $i<=$total_pages; $i++): ?>
-                                    <?php if ($i == $page): ?>
-                                        <li class="page-item active"><span class="page-link"><?= $i ?></span></li>
-                                    <?php elseif ($i > $page - 3 && $i < $page + 3): ?>
-                                        <li class="page-item"><a class="page-link" href="?page=<?= $i ?>&month=<?= $month ?>&year=<?= $year ?>&q=<?= $q ?>"><?= $i ?></a></li>
-                                    <?php endif; ?>
-                                <?php endfor; ?>
-
-                                <?php if ($page < $total_pages): ?>
-                                    <li class="page-item"><a class="page-link" href="?page=<?= $page+1 ?>&month=<?= $month ?>&year=<?= $year ?>&q=<?= $q ?>">Next</a></li>
-                                <?php endif; ?>
-                            </ul>
-                        </nav>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <h3 class="page-title">
+      <span class="page-title-icon me-2"><i class="mdi mdi-cash-multiple"></i></span>
+      Expenditure Records
+    </h3>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <form method="GET" class="d-flex align-items-center gap-2">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search…" value="<?= htmlspecialchars($q) ?>" style="width:160px;">
+        <select name="month" class="form-select form-select-sm" style="width:130px;">
+          <option value="all" <?= $month=='all'?'selected':'' ?>>All Months</option>
+          <?php for($i=1;$i<=12;$i++): $m=str_pad($i,2,'0',STR_PAD_LEFT); ?>
+          <option value="<?=$m?>" <?= $month==$m?'selected':'' ?>><?= date('F',mktime(0,0,0,$i,1)) ?></option>
+          <?php endfor; ?>
+        </select>
+        <select name="year" class="form-select form-select-sm" style="width:100px;">
+          <?php for($i=2019;$i<=date('Y');$i++): ?>
+          <option value="<?=$i?>" <?= $year==$i?'selected':'' ?>><?=$i?></option>
+          <?php endfor; ?>
+        </select>
+        <button class="btn btn-sm btn-gradient-primary" type="submit"><i class="mdi mdi-magnify me-1"></i>Filter</button>
+      </form>
+      <a href="manage_spends" class="btn btn-sm btn-gradient-success"><i class="mdi mdi-plus me-1"></i>Log Spend</a>
     </div>
+  </div>
 
-<style>
-    .btn-xs { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
-    .table-hover tbody tr:hover { background-color: rgba(0,0,0,0.02); }
-</style>
+  <!-- Summary Row -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <div class="card border-0 p-3 d-flex flex-row align-items-center gap-3">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(42,157,143,0.1);display:flex;align-items:center;justify-content:center;">
+          <i class="mdi mdi-currency-inr" style="font-size:1.5rem;color:var(--stm-teal);"></i>
+        </div>
+        <div>
+          <p class="mb-0 text-muted" style="font-size:0.75rem;font-weight:600;text-transform:uppercase;">Total Spent — <?= $month_name ?> <?= $year ?></p>
+          <h4 class="mb-0 fw-bold" style="color:var(--stm-teal);">₹<?= number_format($total_amt) ?></h4>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Table Card -->
+  <div class="card border-0">
+    <div class="card-body px-0 pb-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="padding-left:20px;">Date</th>
+              <th>Title / Purpose</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th style="padding-right:20px;text-align:center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (empty($data)): ?>
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">
+                  <i class="mdi mdi-cash-remove" style="font-size:2.5rem;display:block;margin-bottom:8px;opacity:0.25;"></i>
+                  No expenditure records found for this period.
+                </td>
+              </tr>
+            <?php else: foreach($data as $row): ?>
+              <tr>
+                <td style="padding-left:20px;white-space:nowrap;font-size:0.82rem;color:var(--stm-text-muted);">
+                  <?= date('d M, Y', strtotime($row['date'])) ?>
+                </td>
+                <td style="font-weight:600;color:#2c3250;"><?= htmlspecialchars($row['title']) ?></td>
+                <td style="max-width:240px;font-size:0.82rem;color:var(--stm-text-muted);"><?= htmlspecialchars($row['des']) ?></td>
+                <td style="font-weight:700;color:#c0392b;">₹<?= number_format($row['amount']) ?></td>
+                <td style="padding-right:20px;text-align:center;white-space:nowrap;">
+                  <a href="manage_spends?rid=<?= $row['id'] ?>" class="btn btn-gradient-info btn-xs me-1">
+                    <i class="mdi mdi-pencil"></i>
+                  </a>
+                  <a href="manage_spends?rid=<?= $row['id'] ?>&action=delete" class="btn btn-gradient-danger btn-xs"
+                     onclick="return confirm('Delete this expenditure record? This cannot be undone.')">
+                    <i class="mdi mdi-delete"></i>
+                  </a>
+                </td>
+              </tr>
+            <?php endforeach; endif; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <?php if ($total_pages > 1): ?>
+      <div class="px-4 py-3 d-flex justify-content-center">
+        <ul class="pagination pagination-sm mb-0">
+          <?php if ($page > 1): ?>
+            <li class="page-item"><a class="page-link" href="?page=<?=$page-1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>">‹ Prev</a></li>
+          <?php endif; ?>
+          <?php for($i=max(1,$page-2); $i<=min($total_pages,$page+2); $i++): ?>
+            <li class="page-item <?=$i==$page?'active':''?>">
+              <a class="page-link" href="?page=<?=$i?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>"><?=$i?></a>
+            </li>
+          <?php endfor; ?>
+          <?php if ($page < $total_pages): ?>
+            <li class="page-item"><a class="page-link" href="?page=<?=$page+1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>">Next ›</a></li>
+          <?php endif; ?>
+        </ul>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+
+</div>
 <?php include 'includes/footer.php'; ?>
+</div>

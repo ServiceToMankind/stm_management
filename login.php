@@ -1,107 +1,117 @@
 <?php
 session_start();
 include 'includes/functions.php';
+
+$error_msg = '';
+
 if(isset($_POST['name']) && isset($_POST['pass'])){
+    $name = $_POST['name'];
+    $pass = $_POST['pass'];
 
-    $name=$_POST['name'];
-    $pass=$_POST['pass'];
+    $data = get_api_data("$api_url/common/login?username=".urlencode($name)."&password=".urlencode($pass));
+    $data = json_decode($data, true);
 
-    $data=get_api_data("$api_url/common/login?username=".$name."&password=".$pass);
-    $data=json_decode($data,true);
-    // Check for API errors
-    if ($data['status'] !== "success") {
-        echo "API error: " . $data['data'];
-        exit;
+    if (isset($data['status']) && $data['status'] === "success") {
+        $user_data = $data['data'];
+        $_SESSION['ID']   = $user_data['id'];
+        $_SESSION['NAME'] = $user_data['name'];
+        $_SESSION['EMAIL'] = $user_data['mail'];
+        $_SESSION['ROLE'] = "STM Administrator"; // Map role if available in API
+    } else {
+        $error_msg = $data['data'] ?? 'Invalid credentials. Please try again.';
     }
-    // Get payment logs data
-    $user_data = $data['data'];
-    $_SESSION['ID']=$user_data['id'];
-    $_SESSION['NAME']=$user_data['name'];
-    $_SESSION['EMAIL']=$user_data['mail'];
+}
 
-}
-if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
-    // header('location:index.php');
+if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     echo "<script>window.location.href='index'</script>";
+    exit;
 }
-    
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Medico Login</title>
-    <!-- plugins:css -->
+    <title>Login | STM Management Portal</title>
     <link rel="stylesheet" href="assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="assets/vendors/css/vendor.bundle.base.css">
-    <!-- endinject -->
-    <!-- Plugin css for this page -->
-    <!-- End plugin css for this page -->
-    <!-- inject:css -->
-    <!-- endinject -->
-    <!-- Layout styles -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- End layout styles -->
+    <link rel="stylesheet" href="assets/css/custom_override.css?v=2">
     <link rel="shortcut icon" href="assets/images/favicon.ico" />
+    <style>
+        .auth.login-bg {
+            background: linear-gradient(135deg, #24285b 0%, #3a3f7a 100%);
+            min-height: 100vh;
+        }
+        .auth-form-light {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .brand-logo img {
+            width: 100px !important;
+            height: 100px !important;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 4px solid #f8f9fa;
+        }
+        .btn-gradient-primary {
+            background: linear-gradient(to right, #24285b, #3a3f7a) !important;
+            padding: 12px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+        h4 { color: #24285b; font-weight: 800; }
+        .form-control-lg {
+            border-radius: 10px;
+            border: 1px solid #eee;
+            padding: 1.2rem 1.5rem;
+        }
+        .form-control-lg:focus {
+            border-color: #24285b;
+            box-shadow: 0 0 0 0.2rem rgba(36, 40, 91, 0.1);
+        }
+    </style>
 </head>
-
 <body>
     <div class="container-scroller">
         <div class="container-fluid page-body-wrapper full-page-wrapper">
-            <div class="content-wrapper d-flex align-items-center auth">
-                <div class="row flex-grow">
+            <div class="content-wrapper d-flex align-items-center auth login-bg">
+                <div class="row flex-grow w-100">
                     <div class="col-lg-4 mx-auto">
-                        <div class="auth-form-light text-left p-5">
+                        <div class="auth-form-light text-center p-5">
                             <div class="brand-logo">
-                                <img style="width: 80px;" src="assets/images/logoui.svg">
+                                <img src="https://stmorg.in/accesories/service_to_man_kind-20200709-0001.jpg" alt="STM Logo">
                             </div>
-                            <h4>STM Medical Management System</h4>
-                            <h6 class="font-weight-light">Sign in to continue.</h6>
+                            <h4 class="mb-2">STM Management</h4>
+                            <h6 class="font-weight-light text-muted mb-4">Dedicated to Service. Driven by Compassion.</h6>
+                            
+                            <?php if ($error_msg): ?>
+                                <div class="alert alert-danger py-2 small mb-3"><?= htmlspecialchars($error_msg) ?></div>
+                            <?php endif; ?>
+
                             <form class="pt-3" method="POST" action="login">
-                                <div class="form-group">
-                                    <input type="email" class="form-control form-control-lg" id="exampleInputEmail1"
-                                        placeholder="Email" name="name">
+                                <div class="form-group mb-3">
+                                    <input type="email" class="form-control form-control-lg" placeholder="Official Email" name="name" required>
                                 </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control form-control-lg"
-                                        id="exampleInputPassword1" placeholder="Password" name="pass">
+                                <div class="form-group mb-4">
+                                    <input type="password" class="form-control form-control-lg" placeholder="Security Password" name="pass" required>
                                 </div>
-                                <div class="mt-3">
-                                    <button type="submit"
-                                        class="btn btn-block btn-gradient-primary btn-lg font-weight-medium auth-form-btn">SIGN
-                                        IN</button>
+                                <div class="mt-3 d-grid">
+                                    <button type="submit" class="btn btn-gradient-primary btn-lg font-weight-bold auth-form-btn shadow">
+                                        SECURE ACCESS
+                                    </button>
                                 </div>
-                                <!-- <div class="my-2 d-flex justify-content-between align-items-center">
-                                    <div class="form-check">
-                                        <label class="form-check-label text-muted">
-                                            <input type="checkbox" class="form-check-input"> Keep me signed in </label>
-                                    </div>
-                                    <a href="#" class="auth-link text-black">Forgot password?</a>
-                                </div> -->
+                                <div class="mt-4 text-center">
+                                    <small class="text-muted">Managed with ❤️ by <a href="https://weberq.in" class="text-primary fw-bold" target="_blank">WeberQ Global</a></small>
+                                </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- content-wrapper ends -->
         </div>
-        <!-- page-body-wrapper ends -->
     </div>
-    <!-- container-scroller -->
-    <!-- plugins:js -->
     <script src="assets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="assets/js/off-canvas.js"></script>
-    <script src="assets/js/hoverable-collapse.js"></script>
-    <script src="assets/js/misc.js"></script>
-    <!-- endinject -->
 </body>
-
 </html>

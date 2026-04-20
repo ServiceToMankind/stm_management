@@ -5,10 +5,20 @@ include 'includes/functions.php';
 // $root = "http://localhost/management.stmorg.in/";
 
 if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
-}else{
-  echo "<script>window.location.href='login'</script>";
+    $user_id   = $_SESSION['ID'];
+    $user_name = $_SESSION['NAME'] ?? 'Administrator';
+    $user_role = $_SESSION['ROLE'] ?? 'STM Official';
+} else {
+    echo "<script>window.location.href='login'</script>";
+    exit;
 }
 
+function getGreeting() {
+    $hour = date('H');
+    if ($hour < 12) return 'Good Morning ☀️';
+    if ($hour < 17) return 'Good Afternoon 🌤️';
+    return 'Good Evening 🌙';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,10 +36,10 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
     <!-- End plugin css for this page -->
     <!-- inject:css -->
     <!-- endinject -->
-    <!-- ovveride css -->
-    <link rel="stylesheet" href="assets/css/custom_override.css?v=1" />
     <!-- Layout styles -->
     <link rel="stylesheet" href="assets/css/style.css?v=2" />
+    <!-- STM Brand Override (must load AFTER base style) -->
+    <link rel="stylesheet" href="assets/css/custom_override.css?v=4" />
 
     <!-- End layout styles -->
     <link rel="shortcut icon" href="assets/images/favicon.ico" />
@@ -40,8 +50,11 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
         <!-- partial:partials/_navbar.html -->
         <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-                <a class="navbar-brand brand-logo" href="index.html">STM Management</a>
-                <a class="navbar-brand brand-logo-mini" href="index.html"><img
+                <a class="navbar-brand brand-logo" href="index">
+                    <img src="https://stmorg.in/accesories/service_to_man_kind-20200709-0001.jpg" alt="logo" style="width: 40px; height: 40px; margin-right: 10px; border-radius: 50%;">
+                    <span style="font-weight: 800; letter-spacing: 1px; font-size: 1.1rem; vertical-align: middle; color: white;">STM PORTAL</span>
+                </a>
+                <a class="navbar-brand brand-logo-mini" href="index"><img
                         src="https://stmorg.in/accesories/service_to_man_kind-20200709-0001.jpg" width="28px"
                         height="28px" alt="logo" /></a>
             </div>
@@ -70,7 +83,7 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
                                 <span class="availability-status online"></span>
                             </div>
                             <div class="nav-profile-text">
-                                <p class="mb-1 text-black">Pranay Kiran</p>
+                                <p class="mb-1 text-black"><?= htmlspecialchars($user_name) ?></p>
                             </div>
                         </a>
                         <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
@@ -109,174 +122,84 @@ if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
                                 <!--change to offline or busy as needed-->
                             </div>
                             <div class="nav-profile-text d-flex flex-column">
-                                <span class="font-weight-bold mb-2">Pranay Kiran</span>
-                                <span class="text-secondary text-small">Secretary</span>
+                                <span class="font-weight-bold mb-2"><?= htmlspecialchars($user_name) ?></span>
+                                <span class="text-secondary text-small"><?= htmlspecialchars($user_role) ?></span>
                             </div>
                             <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
                         </a>
                     </li>
+                                  <!-- Dashboard -->
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html">
+                        <a class="nav-link" href="index">
                             <span class="menu-title">Dashboard</span>
                             <i class="mdi mdi-home menu-icon"></i>
                         </a>
                     </li>
+
+                    <!-- Community Management -->
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic8" aria-expanded="false"
-                            aria-controls="ui-basic8">
-                            <span class="menu-title">Users</span>
+                        <a class="nav-link" data-bs-toggle="collapse" href="#community-menu" aria-expanded="false" aria-controls="community-menu">
+                            <span class="menu-title">Community Hub</span>
                             <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
+                            <i class="mdi mdi-account-group menu-icon"></i>
                         </a>
-                        <div class="collapse" id="ui-basic8">
+                        <div class="collapse" id="community-menu">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="users">List Users</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_users">Manage Users</a>
-                                </li>
+                                <li class="nav-item"> <a class="nav-link" href="users">List Users</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="manage_users">Manage Users</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="coordinators">Coordinators</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="manage_coordinators">Manage Coordinators</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="volunteers">Volunteers</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="manage_volunteers">Manage Volunteers</a></li>
                             </ul>
                         </div>
                     </li>
+
+                    <!-- Financial Management -->
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false"
-                            aria-controls="ui-basic">
-                            <span class="menu-title">Coordinators</span>
+                        <a class="nav-link" data-bs-toggle="collapse" href="#finance-menu" aria-expanded="false" aria-controls="finance-menu">
+                            <span class="menu-title">Financial Ledger</span>
                             <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
+                            <i class="mdi mdi-cash-multiple menu-icon"></i>
                         </a>
-                        <div class="collapse" id="ui-basic">
+                        <div class="collapse" id="finance-menu">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="coordinators">Coordinators</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_coordinators">Manage Coordinators</a>
-                                </li>
+                                <li class="nav-item"> <a class="nav-link" href="donations">Donations</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="manage_donations">Log Donation</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="spends">Expenditures</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="manage_spends">Log Spend</a></li>
                             </ul>
                         </div>
                     </li>
+
+                    <!-- Operations & Events -->
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic2" aria-expanded="false"
-                            aria-controls="ui-basic2">
-                            <span class="menu-title">Volunteers</span>
+                        <a class="nav-link" data-bs-toggle="collapse" href="#ops-menu" aria-expanded="false" aria-controls="ops-menu">
+                            <span class="menu-title">Core Operations</span>
                             <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
+                            <i class="mdi mdi-calendar-check menu-icon"></i>
                         </a>
-                        <div class="collapse" id="ui-basic2">
+                        <div class="collapse" id="ops-menu">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="volunteers">Volunteers</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_volunteers">Manage Volunteers</a>
-                                </li>
+                                <li class="nav-item"> <a class="nav-link" href="activities">NGO Activities</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="volunteering_activities">Volunteer Efforts</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="camps">Medical Camps</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="manage_camps">Manage Camps</a></li>
                             </ul>
                         </div>
                     </li>
+
+                    <!-- Administration -->
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic3" aria-expanded="false"
-                            aria-controls="ui-basic3">
-                            <span class="menu-title">Donations</span>
+                        <a class="nav-link" data-bs-toggle="collapse" href="#admin-menu" aria-expanded="false" aria-controls="admin-menu">
+                            <span class="menu-title">Administration</span>
                             <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
+                            <i class="mdi mdi-file-document-edit-outline menu-icon"></i>
                         </a>
-                        <div class="collapse" id="ui-basic3">
+                        <div class="collapse" id="admin-menu">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="donations">List Donations</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_donations">Manage Donations</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic4" aria-expanded="false"
-                            aria-controls="ui-basic4">
-                            <span class="menu-title">Spends</span>
-                            <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
-                        </a>
-                        <div class="collapse" id="ui-basic4">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="spends">List Spends</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_spends">Manage Spends</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic5" aria-expanded="false"
-                            aria-controls="ui-basic5">
-                            <span class="menu-title">Document Registration</span>
-                            <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
-                        </a>
-                        <div class="collapse" id="ui-basic5">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="documents">List Documents</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_documents">Manage Documents</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic6" aria-expanded="false"
-                            aria-controls="ui-basic6">
-                            <span class="menu-title">Activities</span>
-                            <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
-                        </a>
-                        <div class="collapse" id="ui-basic6">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="activities">List Activities</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_activities">Manage Activities</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic61" aria-expanded="false"
-                            aria-controls="ui-basic61">
-                            <span class="menu-title">Volunteer Activities</span>
-                            <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
-                        </a>
-                        <div class="collapse" id="ui-basic61">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="volunteering_activities">Volunteer Activities</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic7" aria-expanded="false"
-                            aria-controls="ui-basic7">
-                            <span class="menu-title">Camps</span>
-                            <i class="menu-arrow"></i>
-                            <i class="mdi mdi-comment-plus-outline menu-icon"></i>
-                        </a>
-                        <div class="collapse" id="ui-basic7">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="camps">List Camps</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="manage_camps">Manage Camps</a>
-                                </li>
+                                <li class="nav-item"> <a class="nav-link" href="documents">Document Registry</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="manage_documents">Register New Doc</a></li>
                             </ul>
                         </div>
                     </li>

@@ -1,13 +1,10 @@
     <!-- partial:partials/_footer.html -->
     <footer class="footer">
         <div class="container-fluid d-flex justify-content-between">
-            <span class="text-muted d-block text-center text-sm-start d-sm-inline-block">Copyright © stmorg.in
-                2023</span>
-            <span class="text-muted d-block text-center text-sm-start d-sm-inline-block">Copyright © bootstrapdash.com
-                2021</span>
+            <span class="text-muted d-block text-center text-sm-start d-sm-inline-block">Copyright © stmorg.in 2024</span>
             <span class="text-muted d-block text-center text-sm-start d-sm-inline-block">
-                <a href="https://www.bootstrapdash.com/bootstrap-admin-template/" target="_blank">Bootstrap admin
-                    template</a></span>
+                Developed with ❤️ by <a href="https://weberq.in" target="_blank" class="text-primary fw-bold">WeberQ Global Pvt. Ltd.</a>
+            </span>
         </div>
     </footer>
     <!-- partial -->
