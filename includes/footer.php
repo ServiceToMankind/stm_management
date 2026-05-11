@@ -30,6 +30,19 @@
     <script src="assets/js/dashboard.js"></script>
     <script src="assets/js/todolist.js"></script>
     <!-- End custom js for this page -->
+    <script>
+      (function () {
+        var sidebar = document.querySelector('.sidebar-offcanvas');
+        if (!sidebar) return;
+        document.addEventListener('click', function (e) {
+          if (window.innerWidth > 991) return;
+          if (!sidebar.classList.contains('active')) return;
+          if (sidebar.contains(e.target)) return;
+          if (e.target.closest('[data-toggle="offcanvas"]')) return;
+          sidebar.classList.remove('active');
+        });
+      })();
+    </script>
     </body>
 
     </html>
