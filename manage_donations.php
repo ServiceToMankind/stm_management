@@ -166,9 +166,12 @@ $is_linked  = ($uid !== '');   // donor is a known user
                                     <input type="text"
                                            id="donorNameInput"
                                            class="form-control border-start-0 ps-0"
-                                           placeholder="Type donor name to search or add new…"
+                                           placeholder="Search existing donor by name, mobile or email…"
                                            value="<?= htmlspecialchars($donor_name) ?>"
                                            required>
+                                </div>
+                                <div class="form-text mt-1" style="font-size:.78rem;">
+                                    Pick a donor from the suggestions, or create a new one if not found. Free-typed names are not accepted.
                                 </div>
                                 <!-- Dropdown suggestions -->
                                 <div id="donorSuggestions"
@@ -610,17 +613,27 @@ $is_linked  = ($uid !== '');   // donor is a known user
     }
 
     // ── Form submit guard ──────────────────────────────────────────────────
+    // Only allow submission when a donor is properly linked — either an existing
+    // donor picked from the autocomplete, or a new one created via the modal.
+    // Free-typed names without a uid are rejected.
     document.getElementById('donationForm').addEventListener('submit', function (e) {
-        // Sync hidden name from visible input if not linked to a DB user
-        if (!isLinked) {
-            hiddenName.value = nameInput.value.trim();
-        }
-        if (!hiddenName.value.trim()) {
+        if (!isLinked || !hiddenUid.value.trim()) {
             e.preventDefault();
-            nameInput.focus();
             nameInput.classList.add('is-invalid');
+            newDonorNotice.style.display = 'block';
+            // Re-open the suggestions if user typed enough to search
+            if (nameInput.value.trim().length >= 2) {
+                fetchSuggestions(nameInput.value.trim());
+            }
+            nameInput.focus();
+            nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
+        nameInput.classList.remove('is-invalid');
+    });
+
+    // Clear the invalid state as soon as the user starts fixing it
+    nameInput.addEventListener('input', function () {
         nameInput.classList.remove('is-invalid');
     });
 
