@@ -108,6 +108,14 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
                   <?php endif; ?>
                 </td>
                 <td style="padding-right:20px;text-align:center;white-space:nowrap;">
+                  <?php if (filter_var($row['mail'] ?? '', FILTER_VALIDATE_EMAIL) && $row['payment_status']==1): ?>
+                  <button type="button" class="btn btn-gradient-success btn-xs me-1 js-resend-receipt"
+                          data-rid="<?= (int)$row['id'] ?>"
+                          data-mail="<?= htmlspecialchars($row['mail']) ?>"
+                          title="Resend receipt email to <?= htmlspecialchars($row['mail']) ?>">
+                    <i class="mdi mdi-email-outline"></i>
+                  </button>
+                  <?php endif; ?>
                   <a href="manage_donations?rid=<?= $row['id'] ?>" class="btn btn-gradient-info btn-xs me-1">
                     <i class="mdi mdi-pencil"></i>
                   </a>
@@ -146,3 +154,53 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
 </div>
 <?php include 'includes/footer.php'; ?>
 </div>
+
+<!-- ── Resend receipt (inline, no page reload) ─────────────────────────── -->
+<script>
+(function () {
+    "use strict";
+    const API_BASE = "<?= rtrim($api_url, '/') ?>";
+
+    function toast(message, ok) {
+        const t = document.createElement('div');
+        t.textContent = message;
+        t.style.cssText =
+            'position:fixed;z-index:3000;right:20px;bottom:20px;max-width:340px;' +
+            'padding:12px 16px;border-radius:10px;color:#fff;font-size:.86rem;' +
+            'box-shadow:0 6px 20px rgba(0,0,0,.18);' +
+            (ok ? 'background:#2a7d4f;' : 'background:#c0392b;');
+        document.body.appendChild(t);
+        setTimeout(function () {
+            t.style.transition = 'opacity .4s';
+            t.style.opacity = '0';
+            setTimeout(function () { t.remove(); }, 400);
+        }, 3400);
+    }
+
+    document.querySelectorAll('.js-resend-receipt').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const rid  = btn.getAttribute('data-rid');
+            const mail = btn.getAttribute('data-mail') || 'this donor';
+            if (!rid) return;
+            if (!confirm('Resend the donation receipt to ' + mail + '?')) return;
+
+            const icon = btn.querySelector('i');
+            const prev = icon ? icon.className : '';
+            if (icon) icon.className = 'mdi mdi-loading mdi-spin';
+            btn.disabled = true;
+
+            fetch(API_BASE + '/logs/resend_receipt?rid=' + encodeURIComponent(rid))
+                .then(function (r) { return r.json(); })
+                .then(function (j) {
+                    toast(j.message || (j.status === 'success' ? 'Receipt sent.' : 'Could not send receipt.'),
+                          j.status === 'success');
+                })
+                .catch(function () { toast('Network error. Please try again.', false); })
+                .finally(function () {
+                    if (icon) icon.className = prev;
+                    btn.disabled = false;
+                });
+        });
+    });
+})();
+</script>
