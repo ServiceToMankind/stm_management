@@ -109,11 +109,11 @@ $is_linked  = ($uid !== '');   // donor is a known user
                     <i class="mdi mdi-currency-inr fs-5"></i>
                 </div>
                 <div>
-                    <h3 class="page-title mb-0"><?= htmlspecialchars($page_title) ?></h3>
+                    <h3 class="page-title mb-0"><?= h($page_title) ?></h3>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0" style="font-size:.82rem;">
                             <li class="breadcrumb-item"><a href="donations">Donations</a></li>
-                            <li class="breadcrumb-item active"><?= htmlspecialchars($page_title) ?></li>
+                            <li class="breadcrumb-item active"><?= h($page_title) ?></li>
                         </ol>
                     </nav>
                 </div>
@@ -122,7 +122,7 @@ $is_linked  = ($uid !== '');   // donor is a known user
 
         <?php if ($alert_msg): ?>
         <div class="alert alert-<?= $alert_type ?> alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars($alert_msg) ?>
+            <?= h($alert_msg) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <?php endif; ?>
@@ -133,9 +133,9 @@ $is_linked  = ($uid !== '');   // donor is a known user
                     <div class="card-header bg-gradient-danger text-white py-3 px-4" style="border-bottom:none;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="mdi mdi-file-document-edit-outline fs-5"></i>
-                            <span class="fw-semibold"><?= htmlspecialchars($page_title) ?></span>
+                            <span class="fw-semibold"><?= h($page_title) ?></span>
                             <?php if ($is_edit): ?>
-                            <span class="badge bg-white text-danger ms-auto" style="font-size:.75rem;">Record #<?= htmlspecialchars($rid) ?></span>
+                            <span class="badge bg-white text-danger ms-auto" style="font-size:.75rem;">Record #<?= h($rid) ?></span>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -143,11 +143,11 @@ $is_linked  = ($uid !== '');   // donor is a known user
 
                         <form method="POST" action="manage_donations" id="donationForm" autocomplete="off">
                             <input type="hidden" name="_submit" value="1">
-                            <input type="hidden" name="rid" value="<?= htmlspecialchars($rid) ?>">
-                            <input type="hidden" name="uid" id="hiddenUid" value="<?= htmlspecialchars($uid) ?>">
-                            <input type="hidden" name="donor_name"   id="hiddenName"   value="<?= htmlspecialchars($donor_name) ?>">
-                            <input type="hidden" name="donor_mail"   id="hiddenMail"   value="<?= htmlspecialchars($donor_mail) ?>">
-                            <input type="hidden" name="donor_mobile" id="hiddenMobile" value="<?= htmlspecialchars($donor_mobile) ?>">
+                            <input type="hidden" name="rid" value="<?= h($rid) ?>">
+                            <input type="hidden" name="uid" id="hiddenUid" value="<?= h($uid) ?>">
+                            <input type="hidden" name="donor_name"   id="hiddenName"   value="<?= h($donor_name) ?>">
+                            <input type="hidden" name="donor_mail"   id="hiddenMail"   value="<?= h($donor_mail) ?>">
+                            <input type="hidden" name="donor_mobile" id="hiddenMobile" value="<?= h($donor_mobile) ?>">
 
                             <!-- ── SECTION 1: Donor ───────────────────────────────────────── -->
                             <p class="text-muted fw-semibold mb-3" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;">
@@ -167,7 +167,7 @@ $is_linked  = ($uid !== '');   // donor is a known user
                                            id="donorNameInput"
                                            class="form-control border-start-0 ps-0"
                                            placeholder="Search existing donor by name, mobile or email…"
-                                           value="<?= htmlspecialchars($donor_name) ?>"
+                                           value="<?= h($donor_name) ?>"
                                            required>
                                 </div>
                                 <div class="form-text mt-1" style="font-size:.78rem;">
@@ -186,15 +186,15 @@ $is_linked  = ($uid !== '');   // donor is a known user
                                  style="background:#f8f9ff;display:<?= $is_linked ? 'block' : 'none' ?>;">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="fw-bold text-dark" id="lcName"><?= htmlspecialchars($donor_name) ?></div>
+                                        <div class="fw-bold text-dark" id="lcName"><?= h($donor_name) ?></div>
                                         <div class="text-muted small mt-1">
-                                            <i class="mdi mdi-email-outline me-1"></i><span id="lcMail"><?= htmlspecialchars($donor_mail) ?></span>
+                                            <i class="mdi mdi-email-outline me-1"></i><span id="lcMail"><?= h($donor_mail) ?></span>
                                         </div>
                                         <div class="text-muted small">
-                                            <i class="mdi mdi-phone-outline me-1"></i><span id="lcMobile"><?= htmlspecialchars($donor_mobile) ?></span>
+                                            <i class="mdi mdi-phone-outline me-1"></i><span id="lcMobile"><?= h($donor_mobile) ?></span>
                                         </div>
                                         <div class="text-muted small">
-                                            <i class="mdi mdi-identifier me-1"></i><span id="lcUid"><?= htmlspecialchars($uid) ?></span>
+                                            <i class="mdi mdi-pound me-1"></i><span id="lcUid"><?= h($uid) ?></span>
                                         </div>
                                     </div>
                                     <button type="button" id="clearDonorBtn" class="btn btn-sm btn-outline-secondary" title="Change donor">
@@ -232,7 +232,7 @@ $is_linked  = ($uid !== '');   // donor is a known user
                                         <span class="input-group-text bg-light">₹</span>
                                         <input type="number" name="amount" id="inputAmount"
                                                class="form-control"
-                                               value="<?= htmlspecialchars($amount) ?>"
+                                               value="<?= h($amount) ?>"
                                                placeholder="0.00" min="1" step="0.01" required>
                                     </div>
                                 </div>
@@ -260,7 +260,7 @@ $is_linked  = ($uid !== '');   // donor is a known user
                                     <label class="form-label fw-semibold" for="inputDate">Date &amp; Time</label>
                                     <input type="datetime-local" name="added_on" id="inputDate"
                                            class="form-control"
-                                           value="<?= htmlspecialchars($added_on) ?>">
+                                           value="<?= h($added_on) ?>">
                                 </div>
 
                                 <!-- Transaction ID (only shown for online) -->
@@ -268,7 +268,7 @@ $is_linked  = ($uid !== '');   // donor is a known user
                                     <label class="form-label fw-semibold" for="inputTxid">Transaction ID</label>
                                     <input type="text" name="txid" id="inputTxid"
                                            class="form-control font-monospace"
-                                           value="<?= htmlspecialchars($txid) ?>"
+                                           value="<?= h($txid) ?>"
                                            placeholder="e.g. TXN3291847ABCD">
                                 </div>
 
@@ -277,7 +277,7 @@ $is_linked  = ($uid !== '');   // donor is a known user
                                     <label class="form-label fw-semibold" for="inputMessage">Note / Message</label>
                                     <textarea name="message" id="inputMessage"
                                               class="form-control" rows="2"
-                                              placeholder="Any remarks about this donation…"><?= htmlspecialchars($message) ?></textarea>
+                                              placeholder="Any remarks about this donation…"><?= h($message) ?></textarea>
                                 </div>
                             </div>
 

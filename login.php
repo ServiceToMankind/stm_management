@@ -8,17 +8,31 @@ if(isset($_POST['name']) && isset($_POST['pass'])){
     $name = $_POST['name'];
     $pass = $_POST['pass'];
 
-    $data = get_api_data("$api_url/common/login?username=".urlencode($name)."&password=".urlencode($pass));
+    // The portal has its own sign-in endpoint. It only admits coordinators on
+    // an active account whose portal access has not been withdrawn — the app's
+    // common/login is left alone so volunteers and donors keep working.
+    // Posted rather than queried so the password stays out of the access logs.
+    $data = get_api_data_post("$api_url/access/portal_login", [
+        'username' => $name,
+        'password' => $pass,
+    ]);
     $data = json_decode($data, true);
 
     if (isset($data['status']) && $data['status'] === "success") {
         $user_data = $data['data'];
-        $_SESSION['ID']   = $user_data['id'];
-        $_SESSION['NAME'] = $user_data['name'];
-        $_SESSION['EMAIL'] = $user_data['mail'];
-        $_SESSION['ROLE'] = "STM Administrator"; // Map role if available in API
+        $_SESSION['ID']          = $user_data['id'];
+        $_SESSION['NAME']        = $user_data['name'];
+        $_SESSION['EMAIL']       = $user_data['mail'];
+        $_SESSION['PORTAL_ROLE'] = $user_data['portal_role'] ?? 'coordinator';
+
+        $role_titles = [
+            'admin'       => 'STM Administrator',
+            'treasurer'   => 'STM Treasurer',
+            'coordinator' => 'STM Coordinator',
+        ];
+        $_SESSION['ROLE'] = $role_titles[$_SESSION['PORTAL_ROLE']] ?? 'STM Coordinator';
     } else {
-        $error_msg = $data['data'] ?? 'Invalid credentials. Please try again.';
+        $error_msg = $data['message'] ?? ($data['data'] ?? 'Invalid credentials. Please try again.');
     }
 }
 
@@ -37,7 +51,7 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     <link rel="stylesheet" href="assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="assets/vendors/css/vendor.bundle.base.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/custom_override.css?v=2">
+    <link rel="stylesheet" href="assets/css/custom_override.css?v=15">
     <link rel="shortcut icon" href="assets/images/favicon.ico" />
     <style>
         .auth.login-bg {
@@ -84,7 +98,8 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
                                 <img src="https://stmorg.in/accesories/service_to_man_kind-20200709-0001.jpg" alt="STM Logo">
                             </div>
                             <h4 class="mb-2">STM Management</h4>
-                            <h6 class="font-weight-light text-muted mb-4">Dedicated to Service. Driven by Compassion.</h6>
+                            <h6 class="font-weight-light text-muted mb-1">Dedicated to Service. Driven by Compassion.</h6>
+                            <p class="text-muted mb-4" style="font-size:0.78rem;">Coordinator access only</p>
                             
                             <?php if ($error_msg): ?>
                                 <div class="alert alert-danger py-2 small mb-3"><?= htmlspecialchars($error_msg) ?></div>

@@ -8,7 +8,9 @@ if(isset($_GET['page'])){
     $url = "$api_url/activities/activities";
     $data = get_api_data($url);
     $data = json_decode($data, true);
-    $data = $data['data'];
+    // An unreachable API or an empty result decodes to null, so fall back to an
+    // empty list rather than indexing into nothing.
+    $data = is_array($data['data'] ?? null) ? $data['data'] : [];
 ?>
 <!-- partial -->
 <div class="main-panel">

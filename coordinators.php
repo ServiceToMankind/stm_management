@@ -23,7 +23,7 @@ $total_pages = $resp['total_pages'] ?? 0;
     </h3>
     <div class="d-flex align-items-center gap-2">
       <form method="POST" class="d-flex align-items-center gap-2">
-        <input type="text" name="pquery" class="form-control form-control-sm" placeholder="Search coordinators…" value="<?= htmlspecialchars($pquery) ?>" style="width:220px;">
+        <input type="text" name="pquery" class="form-control form-control-sm" placeholder="Search coordinators…" value="<?= h($pquery) ?>" style="width:220px;">
         <button class="btn btn-sm btn-gradient-primary" type="submit"><i class="mdi mdi-magnify me-1"></i>Search</button>
         <?php if($pquery): ?>
           <a href="coordinators" class="btn btn-sm btn-outline-secondary">Clear</a>
@@ -59,11 +59,11 @@ $total_pages = $resp['total_pages'] ?? 0;
               </tr>
             <?php else: foreach($data as $row): ?>
               <tr>
-                <td style="padding-left:20px;font-size:0.78rem;color:var(--stm-text-muted);font-weight:600;"><?= htmlspecialchars($row['id']) ?></td>
-                <td style="font-weight:600;color:#2c3250;"><?= htmlspecialchars($row['name']) ?></td>
-                <td style="font-size:0.85rem;color:var(--stm-text-muted);"><?= htmlspecialchars($row['mail']) ?></td>
-                <td style="font-size:0.85rem;"><?= htmlspecialchars($row['mobile']) ?></td>
-                <td><span class="badge-gradient-info"><?= htmlspecialchars($row['role']) ?></span></td>
+                <td style="padding-left:20px;font-size:0.78rem;color:var(--stm-text-muted);font-weight:600;"><?= h($row['id']) ?></td>
+                <td style="font-weight:600;color:#2c3250;"><?= h($row['name']) ?></td>
+                <td style="font-size:0.85rem;color:var(--stm-text-muted);"><?= h($row['mail']) ?></td>
+                <td style="font-size:0.85rem;"><?= h($row['mobile']) ?></td>
+                <td><span class="badge-gradient-info"><?= h($row['role']) ?></span></td>
                 <td>
                   <?php if($row['status']==1): ?>
                     <span class="badge-gradient-success">Active</span>

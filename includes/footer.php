@@ -30,7 +30,31 @@
     <script src="assets/js/dashboard.js"></script>
     <script src="assets/js/todolist.js"></script>
     <!-- End custom js for this page -->
+<?php $flash = function_exists('take_flash') ? take_flash() : null; ?>
+<?php if ($flash): ?>
+    <!-- Carried over from the page that redirected here. -->
+    <div class="stm-toast stm-toast-<?= h($flash['type']) ?>" id="stmFlash">
+        <i class="mdi <?= $flash['type'] === 'success' ? 'mdi-check-circle-outline' : ($flash['type'] === 'danger' ? 'mdi-alert-circle-outline' : 'mdi-information-outline') ?> me-2"></i>
+        <span><?= h($flash['msg']) ?></span>
+        <button type="button" class="stm-toast-close" aria-label="Dismiss">&times;</button>
+    </div>
+<?php endif; ?>
+
     <script>
+      (function () {
+        var flash = document.getElementById('stmFlash');
+        if (flash) {
+          var hide = function () {
+            flash.style.transition = 'opacity .35s, transform .35s';
+            flash.style.opacity = '0';
+            flash.style.transform = 'translateY(10px)';
+            setTimeout(function () { flash.remove(); }, 400);
+          };
+          flash.querySelector('.stm-toast-close').addEventListener('click', hide);
+          setTimeout(hide, 6000);
+        }
+      })();
+
       (function () {
         var sidebar = document.querySelector('.sidebar-offcanvas');
         if (!sidebar) return;

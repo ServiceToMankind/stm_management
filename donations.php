@@ -30,7 +30,7 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
     </h3>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <form method="GET" class="d-flex align-items-center gap-2">
-        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search donor…" value="<?= htmlspecialchars($q) ?>" style="width:180px;">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search donor…" value="<?= h($q) ?>" style="width:180px;">
         <select name="month" class="form-select form-select-sm" style="width:130px;">
           <option value="all" <?= $month=='all'?'selected':'' ?>>All Months</option>
           <?php for($i=1;$i<=12;$i++): $m=str_pad($i,2,'0',STR_PAD_LEFT); ?>
@@ -91,14 +91,14 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
             <?php else: foreach($data as $row): ?>
               <tr>
                 <td style="padding-left:20px;">
-                  <span style="font-weight:600;color:#2c3250;"><?= htmlspecialchars($row['name']) ?></span>
+                  <span style="font-weight:600;color:#2c3250;"><?= h($row['name']) ?></span>
                   <?php if($row['txid']): ?>
-                    <br><small class="text-muted" style="font-size:0.72rem;"><?= htmlspecialchars($row['txid']) ?></small>
+                    <br><small class="text-muted" style="font-size:0.72rem;"><?= h($row['txid']) ?></small>
                   <?php endif; ?>
                 </td>
-                <td style="color:var(--stm-text-muted);font-size:0.85rem;"><?= htmlspecialchars($row['mail']) ?></td>
+                <td style="color:var(--stm-text-muted);font-size:0.85rem;"><?= h($row['mail']) ?></td>
                 <td style="font-weight:700;color:#2a7d4f;">₹<?= number_format($row['amount']) ?></td>
-                <td style="max-width:180px;font-size:0.82rem;color:var(--stm-text-muted);"><?= htmlspecialchars($row['message']) ?></td>
+                <td style="max-width:180px;font-size:0.82rem;color:var(--stm-text-muted);"><?= h($row['message']) ?></td>
                 <td style="font-size:0.8rem;white-space:nowrap;"><?= date('d M Y, h:i A', strtotime($row['added_on'])) ?></td>
                 <td>
                   <?php if($row['payment_status']==1): ?>
@@ -111,8 +111,8 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
                   <?php if (filter_var($row['mail'] ?? '', FILTER_VALIDATE_EMAIL) && $row['payment_status']==1): ?>
                   <button type="button" class="btn btn-gradient-success btn-xs me-1 js-resend-receipt"
                           data-rid="<?= (int)$row['id'] ?>"
-                          data-mail="<?= htmlspecialchars($row['mail']) ?>"
-                          title="Resend receipt email to <?= htmlspecialchars($row['mail']) ?>">
+                          data-mail="<?= h($row['mail']) ?>"
+                          title="Resend receipt email to <?= h($row['mail']) ?>">
                     <i class="mdi mdi-email-outline"></i>
                   </button>
                   <?php endif; ?>

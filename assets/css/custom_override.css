@@ -842,3 +842,666 @@ a { color: var(--stm-navy); }
   .navbar .navbar-brand-wrapper .brand-logo-text { font-size: 0.88rem; letter-spacing: 0.3px; }
   .navbar .navbar-menu-wrapper { padding: 0 6px !important; }
 }
+/* ══════════════════════════════════════════════════════════════════════════════
+   STM Portal v5 — tickets, fund approvals, blood bank
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --stm-blood:      #c0392b;
+  --stm-blood-lt:   #e05a4a;
+  --stm-amber:      #e67e22;
+}
+
+/* ── Muted badge, to sit alongside the gradient set ─────────────────────────── */
+.badge-stm-muted {
+  display: inline-block;
+  background: #eef0f5 !important;
+  color: #6b7280 !important;
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+}
+
+/* ── Count bubble on a sidebar link ─────────────────────────────────────────── */
+.sidebar .nav .nav-item .nav-link .nav-count {
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--stm-blood);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── Flash toast ────────────────────────────────────────────────────────────── */
+.stm-toast {
+  position: fixed;
+  z-index: 3000;
+  right: 20px;
+  bottom: 20px;
+  max-width: 380px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.stm-toast .mdi { font-size: 1.1rem; line-height: 1.3; }
+.stm-toast-success { background: var(--stm-green-dark); }
+.stm-toast-danger  { background: var(--stm-blood); }
+.stm-toast-info    { background: var(--stm-navy); }
+.stm-toast-warning { background: var(--stm-amber); }
+.stm-toast-close {
+  background: none;
+  border: 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-left: 8px;
+  padding: 0;
+  cursor: pointer;
+}
+.stm-toast-close:hover { color: #fff; }
+
+/* ── Stat card variants ─────────────────────────────────────────────────────── */
+.stat-card.blood  { background: linear-gradient(130deg, var(--stm-blood), var(--stm-blood-lt)); }
+.stat-card.amber  { background: linear-gradient(130deg, #d97706, #f0a237); }
+.stat-card.purple { background: linear-gradient(130deg, #5b4b8a, #7a68ad); }
+
+/* A quieter tile for secondary numbers, on the white card background. */
+.mini-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: var(--stm-white);
+  border: 1px solid var(--stm-border);
+  border-radius: 12px;
+  height: 100%;
+}
+.mini-stat .mini-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.35rem;
+}
+.mini-stat .mini-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--stm-muted);
+  margin: 0;
+}
+.mini-stat .mini-stat-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--stm-text);
+  margin: 2px 0 0;
+  line-height: 1.1;
+}
+.mini-stat .mini-stat-note { font-size: 0.72rem; color: var(--stm-muted); margin: 0; }
+
+/* ── Blood group chips ──────────────────────────────────────────────────────── */
+.bg-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 10px;
+}
+.bg-chip {
+  display: block;
+  padding: 12px 10px;
+  border: 1px solid var(--stm-border);
+  border-radius: 12px;
+  background: var(--stm-white);
+  text-align: center;
+  text-decoration: none;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.bg-chip:hover {
+  border-color: var(--stm-blood);
+  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.12);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.bg-chip.is-active { border-color: var(--stm-blood); background: #fdf3f2; }
+.bg-chip .bg-chip-group {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--stm-blood);
+  line-height: 1;
+}
+.bg-chip .bg-chip-count { font-size: 0.72rem; color: var(--stm-muted); margin-top: 4px; }
+.bg-chip .bg-chip-ready { font-size: 0.7rem; font-weight: 600; color: var(--stm-green-dark); }
+
+/* ── Timeline on a ticket ───────────────────────────────────────────────────── */
+.stm-timeline { position: relative; padding-left: 30px; }
+.stm-timeline::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--stm-border);
+}
+.stm-timeline-item { position: relative; padding-bottom: 20px; }
+.stm-timeline-item:last-child { padding-bottom: 0; }
+.stm-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--stm-white);
+  border: 2px solid var(--stm-navy-soft);
+}
+.stm-timeline-item.is-system::before { border-color: var(--stm-muted); }
+.stm-timeline-item.is-status::before { border-color: var(--stm-teal); background: var(--stm-teal); }
+.stm-timeline-who {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--stm-text);
+}
+.stm-timeline-when { font-size: 0.72rem; color: var(--stm-muted); }
+.stm-timeline-note {
+  font-size: 0.86rem;
+  color: #4a5168;
+  margin: 4px 0 0;
+  white-space: pre-line;
+}
+
+/* ── Detail rows on a ticket / request page ─────────────────────────────────── */
+.detail-list { margin: 0; }
+.detail-list dt {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--stm-muted);
+  margin-top: 14px;
+}
+.detail-list dt:first-child { margin-top: 0; }
+.detail-list dd { font-size: 0.9rem; color: var(--stm-text); margin: 2px 0 0; }
+
+/* ── Attached proofs ───────────────────────────────────────────────────────── */
+.proof-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.proof-item {
+  position: relative;
+  width: 108px;
+  border: 1px solid var(--stm-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafbfd;
+  text-decoration: none;
+  display: block;
+}
+.proof-item:hover { border-color: var(--stm-navy-soft); }
+.proof-item img { width: 100%; height: 78px; object-fit: cover; display: block; }
+.proof-item .proof-doc {
+  height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--stm-blood);
+}
+.proof-item .proof-name {
+  display: block;
+  padding: 5px 7px;
+  font-size: 0.66rem;
+  color: var(--stm-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Fund approval bar ─────────────────────────────────────────────────────── */
+.fund-bar {
+  height: 6px;
+  border-radius: 4px;
+  background: var(--stm-border);
+  overflow: hidden;
+  margin-top: 6px;
+}
+.fund-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--stm-teal);
+}
+
+/* ── Urgency stripe on a requirement card ──────────────────────────────────── */
+.need-card {
+  border: 1px solid var(--stm-border);
+  border-left: 4px solid var(--stm-muted);
+  border-radius: 12px;
+  background: var(--stm-white);
+  padding: 16px 18px;
+  height: 100%;
+}
+.need-card.urgency-critical { border-left-color: var(--stm-blood); }
+.need-card.urgency-urgent   { border-left-color: var(--stm-amber); }
+.need-card.urgency-routine  { border-left-color: var(--stm-teal); }
+.need-card .need-group {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--stm-blood);
+  line-height: 1;
+}
+
+/* ── Poster preview ────────────────────────────────────────────────────────── */
+.poster-stage {
+  background: #e9ecf3;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  justify-content: center;
+}
+.poster-stage canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(36, 40, 91, 0.18);
+}
+
+/* ── Empty state ───────────────────────────────────────────────────────────── */
+.stm-empty { text-align: center; padding: 56px 20px; color: var(--stm-muted); }
+.stm-empty .mdi { font-size: 2.8rem; display: block; margin-bottom: 10px; opacity: 0.25; }
+.stm-empty p { font-size: 0.9rem; margin: 0 0 4px; }
+.stm-empty small { font-size: 0.78rem; opacity: 0.8; }
+
+/* ── Filter chip row ───────────────────────────────────────────────────────── */
+.filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.filter-chip {
+  padding: 5px 13px;
+  border: 1px solid var(--stm-border);
+  border-radius: 20px;
+  background: var(--stm-white);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--stm-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.filter-chip:hover { border-color: var(--stm-navy-soft); color: var(--stm-navy); text-decoration: none; }
+.filter-chip.is-active {
+  background: var(--stm-navy);
+  border-color: var(--stm-navy);
+  color: #fff;
+}
+.filter-chip .chip-n { opacity: 0.6; margin-left: 4px; font-weight: 500; }
+
+/* ── Read-only notice strip ────────────────────────────────────────────────── */
+.gate-note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #fff8e6;
+  border: 1px solid #f3e0b0;
+  color: #7a5a12;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.gate-note .mdi { font-size: 1.2rem; line-height: 1.3; flex-shrink: 0; }
+.gate-note a { color: #6b4e0f; font-weight: 700; text-decoration: underline; }
+
+@media (max-width: 575px) {
+  .stm-toast { right: 12px; left: 12px; bottom: 12px; max-width: none; }
+  .proof-item { width: calc(50% - 5px); }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   STM Portal v6 — density, alignment and small screens
+
+   Everything below is a correction to the layout rather than new decoration:
+   room to breathe on large screens, controls that line up with each other, and
+   tables and filter bars that survive being narrowed.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Page canvas ─────────────────────────────────────────────────────────────
+   The wrapper used to hold a flat 2rem at every width, which is cramped on a
+   desktop and wasteful on a phone. It now scales, and stops stretching once
+   the screen is wider than the content can usefully fill. */
+.content-wrapper {
+  padding: 2.25rem 2.5rem !important;
+  max-width: 1760px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 1399px) { .content-wrapper { padding: 2rem !important; } }
+@media (max-width: 991px)  { .content-wrapper { padding: 1.5rem 1.25rem !important; } }
+@media (max-width: 575px)  { .content-wrapper { padding: 1.15rem 1rem !important; } }
+
+/* ── Page header ─────────────────────────────────────────────────────────────
+   Title on the left, controls on the right — but only while there is room for
+   both. Below that they stack, and the controls get the full width instead of
+   being squeezed into a wrapped half-row. */
+/* The base theme sets align-items and justify-content on .page-header with
+   !important, so these have to match it to win. */
+.page-header {
+  align-items: flex-start !important;
+  gap: 1rem 1.25rem;
+  margin-bottom: 1.75rem !important;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--stm-border);
+}
+
+.page-title {
+  font-size: 1.35rem !important;
+  line-height: 1.3 !important;
+  gap: 0.15rem;
+  min-height: 34px;
+  justify-content: flex-start !important;
+  text-align: left;
+}
+
+/* The control cluster: filters, search, action buttons. */
+.page-header > div:last-child,
+.page-header > form:last-child,
+.page-header > nav:last-child {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.page-header form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+@media (max-width: 991px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+  }
+  .page-header > div:last-child,
+  .page-header > form:last-child,
+  .page-header > nav:last-child { width: 100%; }
+}
+
+/* On a phone the filter controls go full width and stack, rather than ending up
+   as a row of 90px-wide boxes nothing fits in. */
+@media (max-width: 575px) {
+  .page-header form { width: 100%; }
+
+  /* A search box across the top, then the selects two to a row — stacking all
+     of them full width pushed the actual content most of a screen down. */
+  .page-header form .form-control,
+  .page-header form .form-select {
+    width: auto !important;
+    min-width: 0;
+    flex: 1 1 calc(50% - 0.3rem);
+  }
+  .page-header form input[type="text"],
+  .page-header form input[type="search"] { flex: 1 1 100%; }
+  .page-header form .btn { flex: 1 1 100%; }
+  .page-header > div:last-child > .btn { flex: 1 1 calc(50% - 0.3rem); justify-content: center; }
+}
+
+/* ── Controls line up with each other ────────────────────────────────────────
+   A btn-sm beside a form-control-sm beside a form-select-sm sat at three
+   different heights, which is most of the "nothing is aligned" feeling. */
+.form-control-sm,
+.form-select-sm,
+.btn-sm,
+.btn.btn-sm {
+  height: 36px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 34px !important;
+  border-radius: 8px !important;
+}
+
+.btn-sm,
+.btn.btn-sm {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  padding-left: 0.9rem !important;
+  padding-right: 0.9rem !important;
+}
+
+/* btn-xs is for the icon buttons inside table rows and keeps its own size. */
+.btn-xs,
+.btn.btn-xs {
+  height: 28px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-control, .form-select {
+  border-color: var(--stm-border) !important;
+  border-radius: 8px !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--stm-navy-soft) !important;
+  box-shadow: 0 0 0 0.18rem rgba(36, 40, 91, 0.10) !important;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card { border-radius: 14px !important; }
+.card > .card-body { padding: 1.5rem 1.75rem; }
+
+@media (max-width: 991px) { .card > .card-body { padding: 1.25rem; } }
+@media (max-width: 575px) { .card > .card-body { padding: 1.1rem; } }
+
+/* Table cards opt out of horizontal padding so rows can run edge to edge;
+   don't let the responsive rules above put it back. */
+.card > .card-body.px-0 { padding-left: 0 !important; padding-right: 0 !important; }
+
+.grid-margin { margin-bottom: 1.5rem; }
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+.table thead th { padding: 14px 18px !important; }
+.table tbody td { padding: 15px 18px !important; line-height: 1.5 !important; }
+
+/* Long emails, messages and URLs used to run straight through the next column.
+   `break-word` and not `anywhere`: `anywhere` also feeds the break points into
+   min-content sizing, which let the whole table collapse to one word per line
+   on a phone instead of scrolling. */
+.table tbody td {
+  overflow-wrap: break-word;
+}
+.table tbody td[style*="max-width"] { white-space: normal; }
+
+/* Keep the action column tight against the right edge and never wrapped. */
+.table td .btn-xs { vertical-align: middle; }
+
+/* The scroll container sits flush inside a px-0 card body. */
+.table-responsive {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 767px) {
+  /* Hold a readable width and let the container scroll. Without a floor the
+     table squeezes itself into the viewport and the columns become unreadable
+     ribbons of broken words. */
+  .table-responsive > .table { min-width: 860px; }
+
+  /* Scrolling sideways means pinning the first column — without it you lose
+     track of which row you are reading. */
+  .table-responsive > .table > thead > tr > th:first-child,
+  .table-responsive > .table > tbody > tr > td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-shadow: 6px 0 8px -6px rgba(36, 40, 91, 0.18);
+  }
+  .table-responsive > .table > tbody > tr > td:first-child { background: var(--stm-white); }
+  .table-responsive > .table > thead > tr > th:first-child { background: #f8f9fc; }
+  .table-hover > tbody > tr:hover > td:first-child { background: #f8f9fc !important; }
+
+  .table thead th { padding: 12px 14px !important; }
+  .table tbody td { padding: 13px 14px !important; font-size: 0.84rem !important; }
+}
+
+/* ── Stat and mini-stat tiles ────────────────────────────────────────────── */
+.stat-card { border-radius: 14px; }
+.stat-card .stat-value { font-size: 1.75rem; }
+
+@media (max-width: 575px) {
+  .stat-card { padding: 1.25rem !important; }
+  .stat-card .stat-value { font-size: 1.55rem; }
+  .mini-stat { padding: 14px 15px; }
+}
+
+/* A tile that is a link should not look like body text. */
+a.mini-stat { text-decoration: none !important; transition: border-color .15s, box-shadow .15s; }
+a.mini-stat:hover {
+  border-color: var(--stm-navy-soft);
+  box-shadow: 0 4px 16px rgba(36, 40, 91, 0.08);
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .welcome-hero { padding: 1.5rem 1.35rem; }
+  .welcome-hero h2 { font-size: 1.35rem !important; }
+}
+
+/* ── Forms ───────────────────────────────────────────────────────────────── */
+.forms-sample .form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a5168;
+  margin-bottom: 0.35rem;
+}
+.forms-sample .form-control,
+.forms-sample .form-select,
+.forms-sample .input-group-text { padding: 0.6rem 0.85rem; }
+
+.forms-sample textarea.form-control { line-height: 1.6; }
+
+/* Section headings inside a long form. */
+.forms-sample h6 {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--stm-border);
+  margin-top: 0.5rem;
+}
+.forms-sample h6:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+
+/* The save row: stacked and full width on a phone, where a half-width button
+   at the far right is an awkward reach. */
+@media (max-width: 575px) {
+  .forms-sample .d-grid.gap-2.d-md-flex > .btn,
+  .forms-sample .d-grid.gap-2.d-md-flex > a.btn { width: 100%; }
+}
+
+/* ── Filter chips ────────────────────────────────────────────────────────── */
+.filter-chips { gap: 8px; margin-bottom: 1.25rem !important; }
+@media (max-width: 767px) {
+  /* Scroll the chip row instead of letting it stack four deep. */
+  .filter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .filter-chip { flex: 0 0 auto; }
+}
+
+/* ── Detail pages ────────────────────────────────────────────────────────── */
+.detail-list dd { line-height: 1.55; }
+.stm-timeline { padding-left: 28px; }
+
+@media (max-width: 575px) {
+  .stm-timeline { padding-left: 24px; }
+  .proof-item { width: calc(50% - 5px); }
+}
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.pagination { flex-wrap: wrap; justify-content: center; gap: 4px !important; }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.footer { padding: 1.1rem 2.5rem !important; }
+@media (max-width: 991px) { .footer { padding: 1rem 1.25rem !important; } }
+@media (max-width: 575px) {
+  .footer .container-fluid { flex-direction: column; gap: 4px; text-align: center; }
+}
+
+/* ── Switches inside a form grid ──────────────────────────────────────────────
+   The theme drops the padding Bootstrap reserves for a form-switch, so the
+   toggle hung outside its own column. Put it back. */
+.form-check.form-switch {
+  padding-left: 2.5em;
+  min-height: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.form-check.form-switch .form-check-input {
+  margin-left: -2.5em;
+  margin-top: 0;
+  flex-shrink: 0;
+  width: 2.1em;
+  height: 1.15em;
+  cursor: pointer;
+}
+.form-check.form-switch .form-check-input:checked {
+  background-color: var(--stm-navy) !important;
+  border-color: var(--stm-navy) !important;
+}
+.form-check.form-switch .form-check-label {
+  margin: 0;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+/* A toggle that sits where a labelled input would, so it lines up with the
+   fields either side of it. */
+.form-check.form-switch.mt-2 { margin-top: 0.55rem !important; }
+
+/* ── Checkboxes and radios ───────────────────────────────────────────────────
+   The theme drops the indent Bootstrap reserves for the control, which left the
+   box floating well away from its own label. */
+.form-check:not(.form-switch) {
+  padding-left: 1.6em;
+  min-height: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.form-check:not(.form-switch) .form-check-input {
+  margin-left: -1.6em;
+  margin-top: 0;
+  flex-shrink: 0;
+  width: 1.05em;
+  height: 1.05em;
+  cursor: pointer;
+}
+.form-check .form-check-input:checked {
+  background-color: var(--stm-navy) !important;
+  border-color: var(--stm-navy) !important;
+}
+.form-check .form-check-label { margin: 0; cursor: pointer; }

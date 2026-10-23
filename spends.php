@@ -8,8 +8,11 @@ $month  = isset($_GET['month']) ? $_GET['month'] : date('m');
 $year   = isset($_GET['year'])  ? $_GET['year']  : date('Y');
 $q      = isset($_GET['q'])     ? $_GET['q']     : '';
 
+$unapproved = isset($_GET['unapproved']) && $_GET['unapproved'] === '1';
+
 $url = "$api_url/logs/spends?page=$page&month=$month&year=$year";
-if ($q !== '') $url .= "&q=" . urlencode($q);
+if ($q !== '')   $url .= "&q=" . urlencode($q);
+if ($unapproved) $url .= "&unapproved=1";
 
 $resp        = json_decode(get_api_data($url), true);
 $data        = $resp['data']         ?? [];
@@ -30,7 +33,7 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
     </h3>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <form method="GET" class="d-flex align-items-center gap-2">
-        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search…" value="<?= htmlspecialchars($q) ?>" style="width:160px;">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search…" value="<?= h($q) ?>" style="width:160px;">
         <select name="month" class="form-select form-select-sm" style="width:130px;">
           <option value="all" <?= $month=='all'?'selected':'' ?>>All Months</option>
           <?php for($i=1;$i<=12;$i++): $m=str_pad($i,2,'0',STR_PAD_LEFT); ?>
@@ -44,9 +47,24 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
         </select>
         <button class="btn btn-sm btn-gradient-primary" type="submit"><i class="mdi mdi-magnify me-1"></i>Filter</button>
       </form>
+      <a href="?month=<?= h($month) ?>&year=<?= h($year) ?><?= $unapproved ? '' : '&unapproved=1' ?>"
+         class="btn btn-sm <?= $unapproved ? 'btn-gradient-warning' : 'btn-outline-secondary' ?>">
+        <i class="mdi mdi-shield-alert-outline me-1"></i><?= $unapproved ? 'All Entries' : 'Unapproved Only' ?>
+      </a>
       <a href="manage_spends" class="btn btn-sm btn-gradient-success"><i class="mdi mdi-plus me-1"></i>Log Spend</a>
     </div>
   </div>
+
+  <?php if ($unapproved): ?>
+    <div class="gate-note mb-3">
+      <i class="mdi mdi-shield-alert-outline"></i>
+      <div>
+        Entries with no treasurer approval behind them — records logged before the approval
+        flow came in, plus any direct admin entries since. Everything logged the normal way
+        traces back to a sanctioned fund request.
+      </div>
+    </div>
+  <?php endif; ?>
 
   <!-- Summary Row -->
   <div class="row mb-3">
@@ -73,6 +91,7 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
               <th style="padding-left:20px;">Date</th>
               <th>Title / Purpose</th>
               <th>Description</th>
+              <th>Approval</th>
               <th>Amount</th>
               <th style="padding-right:20px;text-align:center;">Actions</th>
             </tr>
@@ -80,8 +99,8 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
           <tbody>
             <?php if (empty($data)): ?>
               <tr>
-                <td colspan="5" class="text-center py-5 text-muted">
-                  <i class="mdi mdi-cash-remove" style="font-size:2.5rem;display:block;margin-bottom:8px;opacity:0.25;"></i>
+                <td colspan="6" class="text-center py-5 text-muted">
+                  <i class="mdi mdi-cash" style="font-size:2.5rem;display:block;margin-bottom:8px;opacity:0.25;"></i>
                   No expenditure records found for this period.
                 </td>
               </tr>
@@ -90,8 +109,19 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
                 <td style="padding-left:20px;white-space:nowrap;font-size:0.82rem;color:var(--stm-text-muted);">
                   <?= date('d M, Y', strtotime($row['date'])) ?>
                 </td>
-                <td style="font-weight:600;color:#2c3250;"><?= htmlspecialchars($row['title']) ?></td>
-                <td style="max-width:240px;font-size:0.82rem;color:var(--stm-text-muted);"><?= htmlspecialchars($row['des']) ?></td>
+                <td style="font-weight:600;color:#2c3250;"><?= h($row['title']) ?></td>
+                <td style="max-width:220px;font-size:0.82rem;color:var(--stm-text-muted);"><?= h($row['des']) ?></td>
+                <td style="font-size:0.78rem;white-space:nowrap;">
+                  <?php if (!empty($row['fund_request_id'])): ?>
+                    <a href="fund_request?rid=<?= (int)$row['fund_request_id'] ?>" style="font-weight:600;">
+                      <?= h($row['request_no'] ?: '#' . $row['fund_request_id']) ?>
+                    </a>
+                  <?php elseif (($row['entry_source'] ?? '') === 'admin_direct'): ?>
+                    <span class="badge-gradient-warning">Direct entry</span>
+                  <?php else: ?>
+                    <span class="badge-stm-muted">Pre-approval</span>
+                  <?php endif; ?>
+                </td>
                 <td style="font-weight:700;color:#c0392b;">₹<?= number_format($row['amount']) ?></td>
                 <td style="padding-right:20px;text-align:center;white-space:nowrap;">
                   <a href="manage_spends?rid=<?= $row['id'] ?>" class="btn btn-gradient-info btn-xs me-1">
@@ -113,15 +143,15 @@ $month_name = $month === 'all' ? 'All Time' : date('F', mktime(0,0,0,$month,1));
       <div class="px-4 py-3 d-flex justify-content-center">
         <ul class="pagination pagination-sm mb-0">
           <?php if ($page > 1): ?>
-            <li class="page-item"><a class="page-link" href="?page=<?=$page-1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>">‹ Prev</a></li>
+            <li class="page-item"><a class="page-link" href="?page=<?=$page-1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?><?= $unapproved ? '&unapproved=1' : '' ?>">‹ Prev</a></li>
           <?php endif; ?>
           <?php for($i=max(1,$page-2); $i<=min($total_pages,$page+2); $i++): ?>
             <li class="page-item <?=$i==$page?'active':''?>">
-              <a class="page-link" href="?page=<?=$i?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>"><?=$i?></a>
+              <a class="page-link" href="?page=<?=$i?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?><?= $unapproved ? '&unapproved=1' : '' ?>"><?=$i?></a>
             </li>
           <?php endfor; ?>
           <?php if ($page < $total_pages): ?>
-            <li class="page-item"><a class="page-link" href="?page=<?=$page+1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?>">Next ›</a></li>
+            <li class="page-item"><a class="page-link" href="?page=<?=$page+1?>&month=<?=$month?>&year=<?=$year?>&q=<?=$q?><?= $unapproved ? '&unapproved=1' : '' ?>">Next ›</a></li>
           <?php endif; ?>
         </ul>
       </div>

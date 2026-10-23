@@ -1,17 +1,40 @@
 <?php
 session_start();
+
+// Pages do their saving and redirecting after this file has already printed the
+// navbar, so hold the output in a buffer. redirect() in includes/auth.php drops
+// the buffer and sends a real Location header; otherwise it flushes as usual.
+ob_start();
+
 include 'includes/functions.php';
+include 'includes/auth.php';
 
 // $root = "http://localhost/management.stmorg.in/";
 
 if(isset($_SESSION['ID']) && $_SESSION['ID']!=''){
+    // Sessions opened before portal roles existed carry no access level, so
+    // send them back through the gate once rather than guessing at it.
+    if (!isset($_SESSION['PORTAL_ROLE'])) {
+        redirect('logout');
+    }
+
     $user_id   = $_SESSION['ID'];
     $user_name = $_SESSION['NAME'] ?? 'Administrator';
     $user_role = $_SESSION['ROLE'] ?? 'STM Official';
 } else {
-    echo "<script>window.location.href='login'</script>";
-    exit;
+    redirect('login');
 }
+
+$portal_role = portal_role();
+
+// The treasurer should see the waiting queue the moment they sign in, wherever
+// they happen to land. A coordinator sees how many of their own requests are
+// still with the treasurer — the same number, counted from their side.
+$fund_summary_url = "$api_url/funds/fund_requests?summary=1";
+if (!can_approve_funds()) $fund_summary_url .= "&mine=1&" . actor_qs();
+
+$fund_summary      = json_decode(get_api_data($fund_summary_url), true);
+$pending_approvals = (int)($fund_summary['counts']['pending']['count'] ?? 0);
 
 function getGreeting() {
     $hour = date('H');
@@ -24,10 +47,12 @@ $current_page = basename($_SERVER['PHP_SELF'], '.php');
 if ($current_page === '' || $current_page === 'index') $current_page = 'index';
 
 $nav_groups = [
+    'tickets'   => ['tickets', 'manage_ticket', 'ticket'],
+    'blood'     => ['blood', 'blood_donors', 'manage_blood_donor', 'blood_requests', 'manage_blood_request', 'blood_poster', 'blood_log', 'blood_request'],
     'community' => ['users', 'manage_users', 'coordinators', 'manage_coordinators', 'volunteers', 'manage_volunteers'],
-    'finance'   => ['donations', 'manage_donations', 'spends', 'manage_spends', 'printdonations'],
+    'finance'   => ['donations', 'manage_donations', 'spends', 'manage_spends', 'printdonations', 'fund_requests', 'manage_fund_request', 'fund_request'],
     'ops'       => ['activities', 'volunteering_activities', 'add_vol_activity', 'camps', 'manage_camps'],
-    'admin'     => ['documents', 'manage_documents'],
+    'admin'     => ['documents', 'manage_documents', 'portal_access'],
 ];
 $active_group = '';
 foreach ($nav_groups as $g => $pages) {
@@ -57,7 +82,7 @@ function group_expanded($group, $active_group){ return $group === $active_group 
     <!-- Layout styles -->
     <link rel="stylesheet" href="assets/css/style.css?v=2" />
     <!-- STM Brand Override (must load AFTER base style) -->
-    <link rel="stylesheet" href="assets/css/custom_override.css?v=13" />
+    <link rel="stylesheet" href="assets/css/custom_override.css?v=15" />
 
     <!-- End layout styles -->
     <link rel="shortcut icon" href="assets/images/favicon.ico" />
@@ -102,13 +127,14 @@ function group_expanded($group, $active_group){ return $group === $active_group 
                                 <i class="mdi mdi-account-circle"></i>
                             </span>
                             <div class="nav-profile-text">
-                                <p class="mb-1 text-black"><?= htmlspecialchars($user_name) ?></p>
+                                <p class="mb-1 text-black"><?= h($user_name) ?></p>
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end navbar-dropdown" aria-labelledby="profileDropdown">
                             <div class="dropdown-header px-3 py-2">
-                                <div class="fw-bold text-dark"><?= htmlspecialchars($user_name) ?></div>
-                                <div class="text-muted small"><?= htmlspecialchars($user_role) ?></div>
+                                <div class="fw-bold text-dark"><?= h($user_name) ?></div>
+                                <div class="text-muted small"><?= h($user_role) ?></div>
+                                <div class="text-muted" style="font-size:0.7rem;"><?= h($user_id) ?></div>
                             </div>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#">
@@ -141,7 +167,39 @@ function group_expanded($group, $active_group){ return $group === $active_group 
                         </a>
                     </li>
 
+                    <li class="nav-item <?= group_active('blood', $active_group) ?>">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#blood-menu" aria-expanded="<?= group_expanded('blood', $active_group) ?>" aria-controls="blood-menu">
+                            <i class="mdi mdi-water menu-icon"></i>
+                            <span class="menu-title">Blood Bank</span>
+                            <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse <?= group_show('blood', $active_group) ?>" id="blood-menu">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item <?= nav_active('blood', $current_page) ?>"><a class="nav-link" href="blood">Blood Dashboard</a></li>
+                                <li class="nav-item <?= nav_active('blood_donors', $current_page) ?>"><a class="nav-link" href="blood_donors">Donor Registry</a></li>
+                                <li class="nav-item <?= nav_active('blood_requests', $current_page) ?>"><a class="nav-link" href="blood_requests">Requirements</a></li>
+                                <li class="nav-item <?= nav_active('manage_blood_request', $current_page) ?>"><a class="nav-link" href="manage_blood_request">Post Requirement</a></li>
+                                <li class="nav-item <?= nav_active('blood_log', $current_page) ?>"><a class="nav-link" href="blood_log">Donation Log</a></li>
+                            </ul>
+                        </div>
+                    </li>
+
                     <li class="nav-section-label">Manage</li>
+
+                    <li class="nav-item <?= group_active('tickets', $active_group) ?>">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#tickets-menu" aria-expanded="<?= group_expanded('tickets', $active_group) ?>" aria-controls="tickets-menu">
+                            <i class="mdi mdi-ticket-confirmation menu-icon"></i>
+                            <span class="menu-title">Activity Tickets</span>
+                            <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse <?= group_show('tickets', $active_group) ?>" id="tickets-menu">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item <?= nav_active('tickets', $current_page) ?>"><a class="nav-link" href="tickets">Ticket Board</a></li>
+                                <li class="nav-item"><a class="nav-link" href="tickets?mine=1">My Tickets</a></li>
+                                <li class="nav-item <?= nav_active('manage_ticket', $current_page) ?>"><a class="nav-link" href="manage_ticket">Raise a Ticket</a></li>
+                            </ul>
+                        </div>
+                    </li>
 
                     <li class="nav-item <?= group_active('community', $active_group) ?>">
                         <a class="nav-link" data-bs-toggle="collapse" href="#community-menu" aria-expanded="<?= group_expanded('community', $active_group) ?>" aria-controls="community-menu">
@@ -173,6 +231,15 @@ function group_expanded($group, $active_group){ return $group === $active_group 
                                 <li class="nav-item <?= nav_active('manage_donations', $current_page) ?>"><a class="nav-link" href="manage_donations">Log Donation</a></li>
                                 <li class="nav-item <?= nav_active('spends', $current_page) ?>"><a class="nav-link" href="spends">Expenditures</a></li>
                                 <li class="nav-item <?= nav_active('manage_spends', $current_page) ?>"><a class="nav-link" href="manage_spends">Log Spend</a></li>
+                                <li class="nav-item <?= nav_active('fund_requests', $current_page) ?>">
+                                    <a class="nav-link" href="fund_requests">
+                                        <?= can_approve_funds() ? 'Approval Queue' : 'My Fund Requests' ?>
+                                        <?php if ($pending_approvals > 0): ?>
+                                            <span class="nav-count"><?= $pending_approvals ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                </li>
+                                <li class="nav-item <?= nav_active('manage_fund_request', $current_page) ?>"><a class="nav-link" href="manage_fund_request">Raise Fund Request</a></li>
                             </ul>
                         </div>
                     </li>
@@ -203,6 +270,9 @@ function group_expanded($group, $active_group){ return $group === $active_group 
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item <?= nav_active('documents', $current_page) ?>"><a class="nav-link" href="documents">Document Registry</a></li>
                                 <li class="nav-item <?= nav_active('manage_documents', $current_page) ?>"><a class="nav-link" href="manage_documents">Register New Doc</a></li>
+                                <?php if (is_admin()): ?>
+                                <li class="nav-item <?= nav_active('portal_access', $current_page) ?>"><a class="nav-link" href="portal_access">Portal Access</a></li>
+                                <?php endif; ?>
                             </ul>
                         </div>
                     </li>
