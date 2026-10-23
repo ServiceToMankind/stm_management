@@ -51,8 +51,8 @@ $nav_groups = [
     'blood'     => ['blood', 'blood_donors', 'manage_blood_donor', 'blood_requests', 'manage_blood_request', 'blood_poster', 'blood_log', 'blood_request'],
     'community' => ['users', 'manage_users', 'coordinators', 'manage_coordinators', 'volunteers', 'manage_volunteers'],
     'finance'   => ['donations', 'manage_donations', 'spends', 'manage_spends', 'printdonations', 'fund_requests', 'manage_fund_request', 'fund_request'],
-    'ops'       => ['activities', 'volunteering_activities', 'add_vol_activity', 'camps', 'manage_camps'],
-    'admin'     => ['documents', 'manage_documents', 'portal_access'],
+    'ops'       => ['activities', 'activity', 'manage_activity', 'ops_report', 'volunteering_activities', 'add_vol_activity'],
+    'admin'     => ['portal_access'],
 ];
 $active_group = '';
 foreach ($nav_groups as $g => $pages) {
@@ -252,14 +252,16 @@ function group_expanded($group, $active_group){ return $group === $active_group 
                         </a>
                         <div class="collapse <?= group_show('ops', $active_group) ?>" id="ops-menu">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item <?= nav_active('activities', $current_page) ?>"><a class="nav-link" href="activities">NGO Activities</a></li>
+                                <li class="nav-item <?= nav_active('activities', $current_page) ?>"><a class="nav-link" href="activities">Activity Register</a></li>
+                                <li class="nav-item <?= nav_active('manage_activity', $current_page) ?>"><a class="nav-link" href="manage_activity">Log an Activity</a></li>
+                                <li class="nav-item"><a class="nav-link" href="activities?stage=live">Coming Up</a></li>
+                                <li class="nav-item <?= nav_active('ops_report', $current_page) ?>"><a class="nav-link" href="ops_report">Impact Report</a></li>
                                 <li class="nav-item <?= nav_active('volunteering_activities', $current_page) ?>"><a class="nav-link" href="volunteering_activities">Volunteer Efforts</a></li>
-                                <li class="nav-item <?= nav_active('camps', $current_page) ?>"><a class="nav-link" href="camps">Medical Camps</a></li>
-                                <li class="nav-item <?= nav_active('manage_camps', $current_page) ?>"><a class="nav-link" href="manage_camps">Manage Camps</a></li>
                             </ul>
                         </div>
                     </li>
 
+                    <?php if (is_admin()): ?>
                     <li class="nav-item <?= group_active('admin', $active_group) ?>">
                         <a class="nav-link" data-bs-toggle="collapse" href="#admin-menu" aria-expanded="<?= group_expanded('admin', $active_group) ?>" aria-controls="admin-menu">
                             <i class="mdi mdi-shield-account-outline menu-icon"></i>
@@ -268,14 +270,16 @@ function group_expanded($group, $active_group){ return $group === $active_group 
                         </a>
                         <div class="collapse <?= group_show('admin', $active_group) ?>" id="admin-menu">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item <?= nav_active('documents', $current_page) ?>"><a class="nav-link" href="documents">Document Registry</a></li>
-                                <li class="nav-item <?= nav_active('manage_documents', $current_page) ?>"><a class="nav-link" href="manage_documents">Register New Doc</a></li>
+                                <!-- Document Registry is not built yet. The API side exists
+                                     (documents/doc_registration.php, documents/doc_types.php),
+                                     but these two pages never did, so the links only 404'd. -->
                                 <?php if (is_admin()): ?>
                                 <li class="nav-item <?= nav_active('portal_access', $current_page) ?>"><a class="nav-link" href="portal_access">Portal Access</a></li>
                                 <?php endif; ?>
                             </ul>
                         </div>
                     </li>
+                    <?php endif; ?>
 
                     <li class="nav-section-label d-lg-none">Account</li>
                     <li class="nav-item nav-item-signout d-lg-none">
