@@ -179,6 +179,9 @@ $status_chips = [
                 <td style="font-size:0.8rem;">
                   <?php if ($t['assigned_to_name']): ?>
                     <?= h($t['assigned_to_name']) ?>
+                    <?php if ((int)($t['assignee_count'] ?? 1) > 1): ?>
+                      <span class="badge-stm-muted">+<?= (int)$t['assignee_count'] - 1 ?></span>
+                    <?php endif; ?>
                   <?php else: ?>
                     <span class="badge-stm-muted">Unassigned</span>
                   <?php endif; ?>

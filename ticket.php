@@ -47,9 +47,11 @@ if (!$t) {
 
 $updates = $resp['updates'] ?? [];
 $funds   = $resp['funds']   ?? [];
-$files   = $resp['files']   ?? [];
+$files     = $resp['files']     ?? [];
+$assignees = $resp['assignees'] ?? [];
 
-$is_mine    = $t['raised_by'] === portal_uid() || $t['assigned_to'] === portal_uid();
+$assignee_uids = array_column($assignees, 'uid');
+$is_mine    = $t['raised_by'] === portal_uid() || in_array(portal_uid(), $assignee_uids, true);
 $can_edit   = is_admin() || ($is_mine && !in_array($t['status'], ['closed', 'rejected'], true));
 $is_settled = in_array($t['status'], ['closed', 'rejected'], true);
 
@@ -141,8 +143,19 @@ foreach ($funds as $f) {
             </div>
             <div class="col-sm-6">
               <dl class="detail-list">
-                <dt>Owner</dt>
-                <dd><?= $t['assigned_to_name'] ? h($t['assigned_to_name']) : '<span class="badge-stm-muted">Unassigned</span>' ?></dd>
+                <dt>Assigned To</dt>
+                <dd>
+                  <?php if (empty($assignees)): ?>
+                    <span class="badge-stm-muted">Nobody yet</span>
+                  <?php else: foreach ($assignees as $as): ?>
+                    <div style="margin-bottom:3px;">
+                      <?= h($as['name'] ?: $as['uid']) ?>
+                      <?php if ($as['mobile']): ?>
+                        <span style="font-size:0.78rem;color:var(--stm-text-muted);">· <?= h($as['mobile']) ?></span>
+                      <?php endif; ?>
+                    </div>
+                  <?php endforeach; endif; ?>
+                </dd>
 
                 <dt>Needed By</dt>
                 <dd><?= nice_date($t['due_date']) ?></dd>

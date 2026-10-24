@@ -12,7 +12,7 @@ $area        = '';
 $city        = '';
 $priority    = 'normal';
 $est_amount  = '';
-$assigned_to = '';
+$assignees   = [];
 $due_date    = '';
 $existing    = [];
 $is_edit     = false;
@@ -38,7 +38,7 @@ if (isset($_POST['_submit'])) {
         'city'               => $_POST['city']               ?? '',
         'priority'           => $_POST['priority']           ?? 'normal',
         'est_amount'         => $_POST['est_amount']         ?? '',
-        'assigned_to'        => $_POST['assigned_to']        ?? '',
+        'assignees'          => $_POST['assignees']          ?? [],
         'due_date'           => $_POST['due_date']           ?? '',
     ]);
 
@@ -66,7 +66,7 @@ if (isset($_POST['_submit'])) {
     $city        = $_POST['city']               ?? '';
     $priority    = $_POST['priority']           ?? 'normal';
     $est_amount  = $_POST['est_amount']         ?? '';
-    $assigned_to = $_POST['assigned_to']        ?? '';
+    $assignees   = (array)($_POST['assignees']  ?? []);
     $due_date    = $_POST['due_date']           ?? '';
     $is_edit     = $rid !== '';
 }
@@ -87,7 +87,8 @@ if (isset($_GET['rid']) && is_numeric($_GET['rid']) && $alert_msg === '') {
         $city        = $row['city'];
         $priority    = $row['priority'];
         $est_amount  = (float)$row['est_amount'] > 0 ? $row['est_amount'] : '';
-        $assigned_to = $row['assigned_to'];
+        $assignees   = array_column($resp['assignees'] ?? [], 'uid');
+        if (!$assignees && $row['assigned_to']) $assignees = [$row['assigned_to']];
         $due_date    = $row['due_date'];
         $existing    = $resp['files'] ?? [];
         $is_edit     = true;
@@ -211,15 +212,18 @@ $page_title = $is_edit ? 'Edit Ticket' : 'Raise a Ticket';
             <h6 class="fw-bold text-uppercase text-muted mb-3 mt-2" style="font-size:0.74rem;letter-spacing:0.8px;">Ownership &amp; Estimate</h6>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="assigned_to" class="form-label fw-bold">Assign To</label>
-                <select name="assigned_to" id="assigned_to" class="form-select">
-                  <option value="">Leave unassigned for now</option>
+                <label for="assignees" class="form-label fw-bold">Assign To</label>
+                <select name="assignees[]" id="assignees" class="form-select" multiple size="7">
                   <?php foreach ($coords as $c): ?>
-                    <option value="<?= h($c['uid']) ?>" <?= $assigned_to === $c['uid'] ? 'selected' : '' ?>>
+                    <option value="<?= h($c['uid']) ?>" <?= in_array($c['uid'], $assignees, true) ? 'selected' : '' ?>>
                       <?= h($c['name']) ?><?= $c['portal_role'] !== 'coordinator' ? ' (' . h(role_label($c['portal_role'])) . ')' : '' ?>
                     </option>
                   <?php endforeach; ?>
                 </select>
+                <small class="text-muted" style="font-size:0.74rem;">
+                  Several people can share a ticket — hold Ctrl, or Cmd on a Mac, to pick more than one.
+                  Everyone newly added is emailed. Leave empty to assign nobody yet.
+                </small>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="est_amount" class="form-label fw-bold">Estimated Cost</label>
