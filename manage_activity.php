@@ -204,7 +204,7 @@ $page_title = $is_edit ? 'Edit Activity' : 'Log an Activity';
 
             <div class="form-group mb-3">
               <label for="title" class="form-label fw-bold">Title <span class="text-danger">*</span></label>
-              <input type="text" name="title" id="title" class="form-control" maxlength="200" required
+              <input type="text" name="title" id="title" class="form-control" maxlength="100" required
                      placeholder="e.g. Food drive at Secunderabad station" value="<?= h($title) ?>">
             </div>
 

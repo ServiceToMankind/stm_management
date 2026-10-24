@@ -203,9 +203,9 @@ foreach ($by_month as $m) $peak = max($peak, (int)$m['activities']);
               <tr>
                 <td style="padding-left:20px;font-weight:700;color:var(--stm-muted);"><?= $i + 1 ?></td>
                 <td>
-                  <div style="font-weight:600;color:#2c3250;"><?= h($t['name'] ?: $t['volunteer_id']) ?></div>
+                  <div style="font-weight:600;color:#2c3250;"><?= h($t['name'] ?: ('Member #' . $t['volunteer_id'])) ?></div>
                   <div style="font-size:0.72rem;color:var(--stm-text-muted);">
-                    <?= h($t['volunteer_id']) ?><?= $t['mobile'] ? ' · ' . h($t['mobile']) : '' ?>
+                    <?= h($t['uid'] ?: ('#' . $t['volunteer_id'])) ?><?= $t['mobile'] ? ' · ' . h($t['mobile']) : '' ?>
                   </div>
                 </td>
                 <td><?= (int)$t['activities'] ?></td>

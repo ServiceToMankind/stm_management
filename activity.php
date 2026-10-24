@@ -78,7 +78,7 @@ $vols   = $resp['volunteers'] ?? [];
 $spends = $resp['spends']     ?? [];
 $files  = $resp['files']      ?? [];
 
-$roster_uids = array_column($vols, 'volunteer_id');
+$roster_uids = array_filter(array_column($vols, 'uid'));
 
 // Everyone who could be added. Volunteers and coordinators both take part.
 $people = json_decode(get_api_data("$api_url/global/users?page=1&role=1"), true);
@@ -351,9 +351,9 @@ $badge = $tone === 'muted' ? 'badge-stm-muted' : 'badge-gradient-' . $tone;
                   <?php foreach ($vols as $v): ?>
                     <tr>
                       <td style="padding-left:20px;">
-                        <div style="font-weight:600;color:#2c3250;"><?= h($v['name'] ?: $v['volunteer_id']) ?></div>
+                        <div style="font-weight:600;color:#2c3250;"><?= h($v['name'] ?: ('Member #' . $v['volunteer_id'])) ?></div>
                         <div style="font-size:0.72rem;color:var(--stm-text-muted);">
-                          <?= h($v['volunteer_id']) ?><?= $v['mobile'] ? ' · ' . h($v['mobile']) : '' ?>
+                          <?= h($v['uid'] ?: ('#' . $v['volunteer_id'])) ?><?= $v['mobile'] ? ' · ' . h($v['mobile']) : '' ?>
                         </div>
                       </td>
                       <td>
@@ -368,16 +368,16 @@ $badge = $tone === 'muted' ? 'badge-stm-muted' : 'badge-gradient-' . $tone;
                       <td style="padding-right:20px;text-align:center;white-space:nowrap;">
                         <?php if ($can_roster): ?>
                           <button type="button" class="btn btn-gradient-info btn-xs me-1 js-mark"
-                                  data-uid="<?= h($v['volunteer_id']) ?>"
-                                  data-name="<?= h($v['name'] ?: $v['volunteer_id']) ?>"
+                                  data-uid="<?= h($v['uid'] ?: $v['volunteer_id']) ?>"
+                                  data-name="<?= h($v['name'] ?: ('Member #' . $v['volunteer_id'])) ?>"
                                   data-attended="<?= (int)$v['attended'] ?>"
                                   data-hours="<?= h($v['hours']) ?>"
                                   data-note="<?= h($v['role_note']) ?>" title="Record attendance">
                             <i class="mdi mdi-clipboard-check-outline"></i>
                           </button>
-                          <a href="activity?rid=<?= $rid ?>&action=drop&uid=<?= urlencode($v['volunteer_id']) ?>"
+                          <a href="activity?rid=<?= $rid ?>&action=drop&uid=<?= urlencode($v['uid'] ?: $v['volunteer_id']) ?>"
                              class="btn btn-gradient-danger btn-xs" title="Take off the roster"
-                             onclick="return confirm('Remove <?= h(addslashes($v['name'] ?: $v['volunteer_id'])) ?> from this activity?')">
+                             onclick="return confirm('Remove <?= h(addslashes($v['name'] ?: ('Member #' . $v['volunteer_id']))) ?> from this activity?')">
                             <i class="mdi mdi-close"></i>
                           </a>
                         <?php else: ?>
